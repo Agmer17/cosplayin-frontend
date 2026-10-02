@@ -140,6 +140,7 @@ export function PostsGrid({
     isPending,
     isError,
     onRetry,
+    emptyMessage = "tidak ada postingan"
 }: PostsGridProps) {
     const isMobile = useIsMobile();
     console.log(posts)
@@ -179,7 +180,7 @@ export function PostsGrid({
                 </div>
 
                 <h3 className="text-lg font-semibold">
-                    Belum ada postingan
+                    {emptyMessage}
                 </h3>
 
             </div>

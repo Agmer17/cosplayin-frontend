@@ -27,7 +27,7 @@ export function SidebarProfile({ profile, hovered }: SidebarProfileProps) {
                         render={<Link href="/auth" />}
                         className="h-auto w-full justify-start rounded p-2 hover:cursor-pointer"
                     >
-                        <LogIn className="h-5! w-5h-5! shrink-0" />
+                        <LogIn className="h-5! w-5! shrink-0" />
 
                         <AnimatePresence>
                             {hovered && (

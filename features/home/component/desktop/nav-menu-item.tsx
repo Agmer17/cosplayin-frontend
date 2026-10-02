@@ -37,7 +37,7 @@ export function NavMenuItem({
                 <Icon
                     className={cn(
                         "h-5! w-5!",
-                        active && "fill-primary text-primary"
+                        active && "text-primary font-bold"
                     )}
                 />
 

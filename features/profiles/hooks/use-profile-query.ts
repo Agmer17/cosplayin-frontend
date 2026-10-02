@@ -8,6 +8,8 @@ export const profileKeys = {
         ["profile", "user", username] as const,
     posts: (username: string) =>
         ["profile", "posts", username] as const,
+    otherLikedPosts : (username : string) =>
+        ["profile", "likes", username]
 };
 
 export function useMyProfile() {
@@ -41,3 +43,10 @@ export function useMyLikes() {
         queryFn: () => postsApi.client.getMyLikedPosts(),
     });
 }
+export function useOtherUserLikes(username : string) {
+    return useQuery({
+        queryKey: profileKeys.otherLikedPosts(username),
+        queryFn: () => postsApi.client.getOtherLikesPosts(username),
+    });
+}
+

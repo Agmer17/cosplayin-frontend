@@ -20,6 +20,7 @@ import { DetailProfileDTO } from "@/lib/type/profile";
 import { resolvePublicMedia } from "@/lib/ImageUrlResolver";
 import { useState } from "react";
 import { PostOptionsDialog } from "./post-option-dialog";
+import { toast } from "sonner";
 
 type PostDetailSidebarProps = {
     post: PostsResponse;
@@ -69,6 +70,21 @@ export function PostDetailSidebar({
         bookmarked,
         toggleBookmark
     } = usePostsBookmark(post.posts_id, post.bookmarked)
+
+    const handleToggleLike = () => {
+        if (!currentProfile) {
+            toast.error("kamu harus login sebelum like posts!")
+        }
+
+        toggleLike()
+    }
+    const handleToggleBookmark = () => {
+        if (!currentProfile) {
+            toast.error("kamu harus login sebelum like masukin postingan ke bookmark!")
+        }
+
+        toggleBookmark()
+    }
 
 
     // ===== Header only mode (mobile top) =====
@@ -181,7 +197,7 @@ export function PostDetailSidebar({
                             aria-label="Like"
                             aria-pressed={liked}
                             disabled={loading}
-                            onClick={toggleLike}
+                            onClick={handleToggleLike}
                         >
                             <Heart
                                 className={
@@ -204,7 +220,7 @@ export function PostDetailSidebar({
                         size="icon"
                         aria-label="Simpan"
                         aria-pressed={post.bookmarked}
-                        onClick={toggleBookmark}
+                        onClick={handleToggleBookmark}
                     >
                         <Bookmark
                             className={

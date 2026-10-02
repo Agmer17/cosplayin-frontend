@@ -1,22 +1,17 @@
 import type { Metadata } from "next";
-import { Google_Sans_Flex, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { DetailProfileDTO } from "@/lib/type/profile";
 import { profileServerApi } from "@/features/profiles/api/profile.server";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { Toaster } from "sonner";
-import { redirect } from "next/navigation";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
+
+import { Google_Sans_Flex, Source_Code_Pro } from "next/font/google";
 
 const fontSans = Google_Sans_Flex({
   subsets: ["latin"],
   variable: "--font-sans",
-});
-
-const fontSerif = Google_Sans_Flex({
-  subsets: ["latin"],
-  variable: "--font-serif",
 });
 
 const fontMono = Source_Code_Pro({
@@ -48,7 +43,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}>
+      <body
+        className={`${fontSans.variable} ${fontMono.variable} antialiased`}
+      >
         <ThemeProvider
           attribute={"class"}
           defaultTheme="system"

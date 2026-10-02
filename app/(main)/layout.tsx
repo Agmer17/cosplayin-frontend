@@ -26,7 +26,7 @@ export default async function mainLayout({
 
     return (
         <div className="w-full min-h-screen">
-            <HomeLayout profile={profile}>
+            <HomeLayout >
                 <main className="w-full h-full">
                     {children}
                 </main>

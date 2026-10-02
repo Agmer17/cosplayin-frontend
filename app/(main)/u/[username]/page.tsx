@@ -6,7 +6,7 @@ import { ProfileView } from "@/features/profiles/component/ProfileView";
 import {
     useOtherProfile,
     useUserPosts,
-    useMyLikes,
+    useOtherUserLikes,
 } from "@/features/profiles/hooks/use-profile-query";
 import { Settings } from "lucide-react";
 
@@ -19,7 +19,7 @@ export default function UserProfilePage() {
 
     const postsQuery = useUserPosts(username);
 
-    const likedPostsQuery = useMyLikes();
+    const likedPostsQuery = useOtherUserLikes(params.username as string);
 
     return (
         <ProfileView

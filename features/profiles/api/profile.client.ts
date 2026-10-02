@@ -10,5 +10,12 @@ export const profileClientApi = {
         clientApi.post<DetailProfileDTO>("/profiles/me/onboarding", form),
 
     getOtherProfile : (username : string) =>
-        clientApi.get<DetailProfileDTO>("/profiles/u/" + username)
+        clientApi.get<DetailProfileDTO>("/profiles/u/" + username),
+
+    updateMyProfile : (form : FormData) => 
+        clientApi.patch<DetailProfileDTO>("/profiles/me", form),
+
+    updateMyUsername : (newUsername : string) =>
+        clientApi.patch<string>("/users/me/username", {username : newUsername})
+
 };

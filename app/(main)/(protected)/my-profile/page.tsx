@@ -8,9 +8,12 @@ import {
     useUserPosts,
 } from "@/features/profiles/hooks/use-profile-query";
 import { Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function MyProfilePage() {
     const profileQuery = useMyProfile();
+
+    const router = useRouter()
 
     const postsQuery = useUserPosts(
         profileQuery.data?.username
@@ -25,6 +28,7 @@ export default function MyProfilePage() {
             likedPostsQuery={likedPostsQuery}
             actions={
                 <Button
+                    onClick={() => router.push("/settings")}
                     variant="outline"
                     className="rounded-full"
                 >

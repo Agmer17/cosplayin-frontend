@@ -6,15 +6,16 @@ import DesktopSidebar from "./desktop-sidebar"
 import { usePathname } from "next/navigation"
 import { useIsMobile } from "@/hooks/use-mobile"
 import MobileBottomBar from "../mobile/MobileBottomBar"
+import { useAuthStore } from "@/lib/store/auth-store"
 
 interface HomeLayoutProps {
     children: React.ReactNode
-    profile: DetailProfileDTO | null
 }
 
-export default function Layout({ children, profile }: HomeLayoutProps) {
+export default function Layout({ children }: HomeLayoutProps) {
     const path = usePathname()
     const isMobile = useIsMobile()
+    const profile = useAuthStore((state) => state.user)
 
     return (
         <div className="flex min-h-screen w-full">

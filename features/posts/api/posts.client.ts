@@ -21,6 +21,9 @@ export const postsApi = {
         getMyLikedPosts : () => 
                 clientApi.get<PostsResponse[]>("/profiles/me/likes"),
 
+        getOtherLikesPosts : (username : string) => 
+            clientApi.get<PostsResponse[]>("/users/" + username +"/likes"),
+
         
         addToBookmark : (id : string) => 
             clientApi.post("/posts/" + id + "/bookmark", null),
@@ -32,6 +35,8 @@ export const postsApi = {
 
         getFeed :  () => 
             clientApi.get<PostsResponse[]>("/posts/feed")
+
+        
 
 
 

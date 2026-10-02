@@ -31,6 +31,7 @@ import { PostDetailMedia } from "./post-detail-media";
 import { postsApi } from "@/features/posts/api/posts.client";
 import { usePostsBookmark, usePostsLike } from "../hooks/use-posts";
 import { PostOptionsDialog } from "./post-option-dialog";
+import { toast } from "sonner";
 
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                    */
@@ -185,6 +186,22 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
         current.bookmarked,
     );
 
+    const handleToggleLike = () => {
+        if (!currentUser) {
+            toast.error("kamu harus login sebelum like posts!")
+        }
+
+        toggleLike()
+    }
+    const handleToggleBookmark = () => {
+        if (!currentUser) {
+            toast.error("kamu harus login sebelum like masukin postingan ke bookmark!")
+        }
+
+        toggleBookmark()
+    }
+
+
     const [optionsOpen, setOptionsOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(false);
     const [expanded, setExpanded] = useState(false);
@@ -243,7 +260,7 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
                     size="icon"
                     aria-label={liked ? "Batal suka" : "Suka"}
                     aria-pressed={liked}
-                    onClick={toggleLike}
+                    onClick={handleToggleLike}
                 >
                     <Heart
                         className={cn(
@@ -270,7 +287,7 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
                     className="ml-auto"
                     aria-label={bookmarked ? "Hapus dari simpanan" : "Simpan"}
                     aria-pressed={bookmarked}
-                    onClick={toggleBookmark}
+                    onClick={handleToggleBookmark}
                 >
                     <Bookmark
                         className={cn(
