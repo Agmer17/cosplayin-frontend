@@ -8,7 +8,7 @@ import { cn } from "cn"
 import { DetailProfileDTO } from "@/lib/type/profile"
 import { isActive, navItems } from "../nav-item"
 import { BottomNavItem } from "./mobile-nav-item"
-import { resolvePublicMedia } from "@/lib/ImageUrlResolver"
+import { resolvePublicMedia } from "@/lib/image-url-resolver"
 
 interface MobileBottomBarProps {
     profile: DetailProfileDTO | null

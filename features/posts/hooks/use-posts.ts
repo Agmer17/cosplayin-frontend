@@ -14,15 +14,26 @@ export function usePostsLike(postId: string, liked: boolean) {
                 ? postsApi.client.likePosts(postId)
                 : postsApi.client.unlikePosts(postId),
 
-        // optimistic update langsung ke cache
         onMutate: async (nextLiked) => {
             await queryClient.cancelQueries({ queryKey });
 
-            const previous = queryClient.getQueryData<PostsResponse>(queryKey);
-
+             const previous =
+                queryClient.getQueryData<PostsResponse>(queryKey);
+                
             queryClient.setQueryData<PostsResponse>(queryKey, (old) =>
-                old ? { ...old, liked: nextLiked } : old,
+                old
+                    ? {
+                        ...old,
+                        liked: nextLiked,
+                        like_count: Math.max(
+                            0,
+                            old.like_count + (nextLiked ? 1 : -1),
+                        ),
+                    }
+                    : old,
             );
+
+           
 
             return { previous };
         },
@@ -34,7 +45,7 @@ export function usePostsLike(postId: string, liked: boolean) {
 
         // sinkronkan dengan server setelah selesai
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey });
+            // queryClient.invalidateQueries({ queryKey });
             queryClient.invalidateQueries({ queryKey: ["my-likes"] });
         },
     });
@@ -61,11 +72,25 @@ export function usePostsBookmark(postId: string, bookmarked: boolean) {
         onMutate: async (nextBookmarked) => {
             await queryClient.cancelQueries({ queryKey });
 
-            const previous = queryClient.getQueryData<PostsResponse>(queryKey);
+            
+            const previous =
+                queryClient.getQueryData<PostsResponse>(queryKey);
 
             queryClient.setQueryData<PostsResponse>(queryKey, (old) =>
-                old ? { ...old, bookmarked: nextBookmarked } : old,
+                old
+                    ? {
+                        ...old,
+                        bookmarked: nextBookmarked,
+                        bookmark_count: Math.max(
+                            0,
+                            old.bookmark_count +
+                                (nextBookmarked ? 1 : -1),
+                        ),
+                    }
+                    : old,
             );
+
+            
 
             return { previous };
         },
@@ -76,7 +101,8 @@ export function usePostsBookmark(postId: string, bookmarked: boolean) {
         },
 
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey });
+            // queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({queryKey : ["my-bookmark"]})
         },
     });
 
@@ -115,4 +141,11 @@ export function usePostDelete(username : string | undefined) {
 
         },
     });
+}
+
+export function useMyBookmark() {
+    return useQuery({
+        queryKey : ["my-bookmark"],
+        queryFn : () => postsApi.client.getMyBookmark(),
+    })
 }

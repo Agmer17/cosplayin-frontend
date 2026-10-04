@@ -6,9 +6,9 @@ import { Bookmark, Camera, Copy, Heart, Play, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIsMobile } from "@/lib/responsive/responsive_util";
+import { useIsMobile } from "@/lib/responsive_util";
 import type { PostsResponse } from "@/lib/type/posts";
-import { resolveMediaUrl } from "@/lib/ImageUrlResolver";
+import { resolveMediaUrl } from "@/lib/image-url-resolver";
 
 const compactNumber = new Intl.NumberFormat("id-ID", {
     notation: "compact",

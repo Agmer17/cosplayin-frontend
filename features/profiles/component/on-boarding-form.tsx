@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     ArrowLeft,
@@ -52,6 +52,11 @@ interface Step {
     optional: boolean;
 }
 
+type UsernameCheck = {
+    username: string; // username yang dicek, untuk mencegah race condition
+    status: "available" | "taken" | "error";
+};
+
 const STEPS: Step[] = [
     {
         title: "Pilih username",
@@ -75,6 +80,17 @@ const STEPS: Step[] = [
 
 const LAST_STEP = STEPS.length - 1;
 
+// Validasi format username di sisi client
+const getLocalUsernameError = (value: string): string | undefined => {
+    if (value.length < 4 || value.length > 255) {
+        return "Username harus memiliki 4 sampai 255 karakter.";
+    }
+    if (!/^[a-zA-Z0-9._]+$/.test(value)) {
+        return "Username hanya boleh berisi huruf, angka, titik, dan underscore.";
+    }
+    return undefined;
+};
+
 export function OnboardingForm() {
     const router = useRouter();
 
@@ -86,32 +102,70 @@ export function OnboardingForm() {
     const [errors, setErrors] = useState<FieldErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Hasil cek ketersediaan username terakhir dari BE
+    const [usernameCheck, setUsernameCheck] = useState<UsernameCheck | null>(null);
+
     const current = STEPS[step];
     const StepIcon = current.icon;
     const isLastStep = step === LAST_STEP;
 
-    const validateUsername = () => {
-        let message: string | undefined;
+    // ===== Derived state username (bukan state, dihitung tiap render) =====
+    const localUsernameError =
+        username.length > 0 ? getLocalUsernameError(username) : undefined;
 
-        if (username.length < 4 || username.length > 255) {
-            message = "Username harus memiliki 4 sampai 255 karakter.";
-        } else if (!/^[a-zA-Z0-9._]+$/.test(username)) {
-            message =
-                "Username hanya boleh berisi huruf, angka, titik, dan underscore.";
-        }
+    const shouldCheck = username.length > 0 && !localUsernameError;
 
-        setErrors((currentErrors) => ({
-            ...currentErrors,
-            username: message,
-        }));
+    // Hasil cek hanya dipakai kalau memang untuk username yang sekarang
+    const result =
+        usernameCheck?.username === username ? usernameCheck.status : null;
 
-        return !message;
-    };
+    const isCheckingUsername = shouldCheck && result === null;
+
+    const usernameApiError =
+        result === "taken"
+            ? "Username sudah digunakan."
+            : result === "error"
+                ? "Gagal mengecek ketersediaan username."
+                : undefined;
+
+    // Error yang ditampilkan: format lokal -> hasil cek BE -> error dari submit
+    const displayedUsernameError =
+        localUsernameError ?? usernameApiError ?? errors.username;
+
+    const isUsernameAvailable =
+        shouldCheck && result === "available" && !displayedUsernameError;
+
+    const canGoNextFromUsername = isUsernameAvailable && !isCheckingUsername;
+
+    // Debounce + cek ke BE. setState hanya di dalam callback async.
+    useEffect(() => {
+        if (!shouldCheck) return;
+
+        let cancelled = false;
+
+        const timeoutId = setTimeout(async () => {
+            try {
+                // BE: true = username SUDAH dipakai
+                const isTaken = await profileClientApi.isUsernameAvaible(username);
+                if (cancelled) return;
+                setUsernameCheck({
+                    username,
+                    status: isTaken ? "taken" : "available",
+                });
+            } catch {
+                if (cancelled) return;
+                setUsernameCheck({ username, status: "error" });
+            }
+        }, 450);
+
+        return () => {
+            cancelled = true;
+            clearTimeout(timeoutId);
+        };
+    }, [username, shouldCheck]);
 
     const goNext = () => {
-        if (step === 0 && !validateUsername()) {
-            return;
-        }
+        if (step === 0 && !canGoNextFromUsername) return;
 
         setStep((value) => Math.min(value + 1, LAST_STEP));
     };
@@ -129,7 +183,8 @@ export function OnboardingForm() {
             return;
         }
 
-        if (!validateUsername()) {
+        // Final guard
+        if (!canGoNextFromUsername) {
             setStep(0);
             return;
         }
@@ -219,7 +274,7 @@ export function OnboardingForm() {
 
                         <InputGroup
                             className={
-                                errors.username
+                                displayedUsernameError
                                     ? "border-destructive"
                                     : undefined
                             }
@@ -234,28 +289,33 @@ export function OnboardingForm() {
                                 placeholder="username kamu"
                                 autoComplete="username"
                                 autoFocus
-                                aria-invalid={Boolean(errors.username)}
+                                aria-invalid={Boolean(displayedUsernameError)}
                                 onChange={(event) => {
                                     setUsername(event.target.value);
-
-                                    if (errors.username) {
-                                        setErrors((currentErrors) => ({
-                                            ...currentErrors,
-                                            username: undefined,
-                                        }));
-                                    }
+                                    // Hapus error username dari submit sebelumnya
+                                    setErrors((prev) => ({
+                                        ...prev,
+                                        username: undefined,
+                                    }));
                                 }}
                             />
+
+                            {isCheckingUsername && (
+                                <InputGroupAddon align="inline-end">
+                                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                                </InputGroupAddon>
+                            )}
                         </InputGroup>
 
-                        {errors.username ? (
+                        {displayedUsernameError && (
                             <p className="text-sm text-destructive">
-                                {errors.username}
+                                {displayedUsernameError}
                             </p>
-                        ) : (
-                            <p className="text-xs text-muted-foreground">
-                                4–255 karakter, hanya huruf, angka, titik, dan
-                                underscore.
+                        )}
+
+                        {isUsernameAvailable && (
+                            <p className="text-sm text-green-600">
+                                Username tersedia.
                             </p>
                         )}
                     </div>
@@ -307,7 +367,10 @@ export function OnboardingForm() {
 
                         <Button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={
+                                isSubmitting ||
+                                (step === 0 && !canGoNextFromUsername)
+                            }
                             className="w-full sm:w-auto"
                         >
                             {isSubmitting ? (

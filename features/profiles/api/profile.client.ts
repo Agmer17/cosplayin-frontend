@@ -16,6 +16,13 @@ export const profileClientApi = {
         clientApi.patch<DetailProfileDTO>("/profiles/me", form),
 
     updateMyUsername : (newUsername : string) =>
-        clientApi.patch<string>("/users/me/username", {username : newUsername})
+        clientApi.patch<string>("/users/me/username", {username : newUsername}),
+
+    isUsernameAvaible : (username : string) => 
+        clientApi.get<boolean>("/users/username-availability", {
+            params : {
+                username
+            }
+        })
 
 };

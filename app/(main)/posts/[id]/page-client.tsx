@@ -119,13 +119,13 @@ function PostDetailSkeleton() {
                         grid
                         overflow-hidden
                         border-y
-                        md:min-h-[600px]
+                        md:min-h-150
                         md:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]
                         md:rounded-xl
                         md:border
                     "
                 >
-                    <Skeleton className="aspect-[4/5] w-full rounded-none md:aspect-auto" />
+                    <Skeleton className="aspect-4/5 w-full rounded-none md:aspect-auto" />
 
                     <div className="space-y-6 p-4">
                         <div className="flex items-center gap-3">

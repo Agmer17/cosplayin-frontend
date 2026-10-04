@@ -4,7 +4,7 @@
 import Link from "next/link";
 
 import { DetailProfileDTO } from "@/lib/type/profile";
-import { resolvePublicMedia } from "@/lib/ImageUrlResolver";
+import { resolvePublicMedia } from "@/lib/image-url-resolver";
 
 type Props = {
     users?: DetailProfileDTO[];

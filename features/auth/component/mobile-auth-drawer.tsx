@@ -9,7 +9,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { OAuthButtons } from "@/features/auth/com/oauth-buttons";
+import { OAuthButtons } from "@/features/auth/component/oauth-buttons";
 import AuthUserAvatar from "./auth-avatar-user";
 
 interface MobileAuthDrawerProps {

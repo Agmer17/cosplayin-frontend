@@ -16,7 +16,7 @@ import {
 
 import { Copy, Flag, Trash } from "lucide-react";
 import { toast } from "sonner";
-import { useIsMobile } from "@/lib/responsive/responsive_util";
+import { useIsMobile } from "@/lib/responsive_util";
 
 export function PostOptionsDialog({
     open,

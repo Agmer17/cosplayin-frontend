@@ -2,7 +2,7 @@
 
 import { Grid3x3, Heart } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useIsMobile } from "@/lib/responsive/responsive_util";
+import { useIsMobile } from "@/lib/responsive_util";
 
 type ProfileTab = "posts" | "likes";
 

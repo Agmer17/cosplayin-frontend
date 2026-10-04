@@ -1,6 +1,6 @@
 
 import { DetailProfileDTO } from "@/lib/type/profile";
-import HomeLayout from "@/features/home/component/desktop/HomeLayout"
+import HomeLayout from "@/features/home/component/desktop/home-layout"
 import { profileServerApi } from "@/features/profiles/api/profile.server";
 import { redirect } from "next/navigation";
 

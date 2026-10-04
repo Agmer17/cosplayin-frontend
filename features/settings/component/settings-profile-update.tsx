@@ -19,7 +19,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { updateProfile, type Gender } from "../api/settings.client"
 import { useAuthStore } from "@/lib/store/auth-store"
 import type { DetailProfileDTO } from "@/lib/type/profile"
-import { resolvePublicMedia } from "@/lib/ImageUrlResolver"
+import { resolvePublicMedia } from "@/lib/image-url-resolver"
+import { toast } from "sonner"
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // asumsi 5MB, samakan dengan limit BE
 
@@ -111,6 +112,8 @@ function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
             avatar.set(null)
             banner.set(null)
             setStatus({ type: "success", message: "Profil berhasil diperbarui." })
+            toast.success("berhasil memperbaharui profile!")
+
         } catch (err) {
             setStatus({
                 type: "error",
@@ -133,7 +136,7 @@ function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
                 >
                     {bannerSrc && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={bannerSrc} alt="Banner" className="size-full object-cover" />
+                        <img src={bannerSrc} alt="" className="size-full object-cover" />
                     )}
                     <span className="absolute inset-0 flex items-center justify-center gap-2 bg-background/60 text-sm opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
                         <Camera className="size-4" /> Ganti banner

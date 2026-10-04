@@ -15,12 +15,13 @@ import type { PostsResponse } from "@/lib/type/posts";
 import { PostCommentsEmpty } from "./posts-comment-empty";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
-import { usePostDelete, usePostsBookmark, usePostsLike } from "../hooks/use-posts";
+import { usePostsBookmark, usePostsLike } from "../hooks/use-posts";
 import { DetailProfileDTO } from "@/lib/type/profile";
-import { resolvePublicMedia } from "@/lib/ImageUrlResolver";
+import { resolvePublicMedia } from "@/lib/image-url-resolver";
 import { useState } from "react";
 import { PostOptionsDialog } from "./post-option-dialog";
 import { toast } from "sonner";
+import { CommentsPanel } from "./comments-pannel";
 
 type PostDetailSidebarProps = {
     post: PostsResponse;
@@ -53,6 +54,7 @@ export function PostDetailSidebar({
     const isMobile = useIsMobile();
 
     const [open, setOpen] = useState(false)
+    const [commentOpen, setCommentOpen] = useState(false)
 
     let authorRedirect = "/u/" + author.username;
     if (author.id === currentProfile?.id) {
@@ -87,7 +89,7 @@ export function PostDetailSidebar({
     }
 
 
-    // ===== Header only mode (mobile top) =====
+
     if (headerOnly) {
         return (
             <div className="bg-background p-4">
@@ -207,7 +209,12 @@ export function PostDetailSidebar({
                                 }
                             />
                         </Button>
-                        <Button type="button" variant="ghost" aria-label="Komentar">
+                        <Button type="button" variant="ghost" aria-label="Komentar"
+                            onClick={() => {
+                                if (isMobile) {
+                                    setCommentOpen(true)
+                                }
+                            }}>
                             <MessageCircle className="h-6! w-6!" />
                         </Button>
                         <Button type="button" variant="ghost" aria-label="Bagikan">
@@ -258,6 +265,14 @@ export function PostDetailSidebar({
                     </div>
                 )}
             </div>
+
+            {isMobile && (
+                <CommentsPanel
+                    open={commentOpen}
+                    onOpenChange={setCommentOpen}
+                    currentUser={currentProfile}
+                />
+            )}
         </div>
     );
 }

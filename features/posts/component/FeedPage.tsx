@@ -1,20 +1,16 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 
 import { PostCard } from "./posts-card";
-import { postsApi } from "../api/posts.client";
 import { DetailProfileDTO } from "@/lib/type/profile";
+import { useFeedData } from "@/features/home/hooks/use-feed-page";
 
 interface FeedPageProps {
     currentUser: DetailProfileDTO | null;
 }
 
 export default function FeedPage({ currentUser }: FeedPageProps) {
-    const { data: feedData = [], isLoading } = useQuery({
-        queryKey: ["feed"],
-        queryFn: postsApi.client.getFeed,
-    });
+    const { isLoading, data = [] } = useFeedData()
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -22,7 +18,7 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
 
     return (
         <div className="flex flex-col gap-4 md:gap-6">
-            {feedData.map((p) => (
+            {data.map((p) => (
                 <PostCard
                     key={p.posts_id}
                     post={p}

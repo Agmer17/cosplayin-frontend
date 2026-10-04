@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
-import { AuthCard } from "@/features/auth/com/auth-card";
-import { MobileAuthDrawer } from "@/features/auth/com/mobile-auth-drawer";
-import { useIsMobile } from "@/lib/responsive/responsive_util";
+import { AuthCard } from "@/features/auth/component/auth-card";
+import { MobileAuthDrawer } from "@/features/auth/component/mobile-auth-drawer";
+import { useIsMobile } from "@/lib/responsive_util";
 
 const AUTH_ARTWORK_SRC = "/assets/image/artwork.jpg";
 

@@ -8,12 +8,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { updateUsername } from "../api/settings.client"
 import { useAuthStore } from "@/lib/store/auth-store"
+import { ApiError } from "@/lib/api/api"
+import { isUsernameAvaible } from "../hooks/settings-username-hooks"
 
 const USERNAME_MIN = 4
 const USERNAME_MAX = 255
 const USERNAME_REGEX = /^[a-zA-Z0-9._]+$/
 
-function validateUsername(value: string): string | null {
+function validateFormat(value: string): string | null {
     if (value.length < USERNAME_MIN || value.length > USERNAME_MAX) {
         return `Username harus ${USERNAME_MIN}-${USERNAME_MAX} karakter.`
     }
@@ -23,39 +25,46 @@ function validateUsername(value: string): string | null {
     return null
 }
 
-export function UpdateUsernameForm() {
+function FormInner() {
     const user = useAuthStore((state) => state.user)
     const setUser = useAuthStore((state) => state.setUser)
 
     const [username, setUsername] = useState(user?.username ?? "")
     const [touched, setTouched] = useState(false)
     const [submitting, setSubmitting] = useState(false)
+    const [serverError, setServerError] = useState<string | null>(null)
     const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
-    if (!user) {
-        return <p className="text-sm text-muted-foreground">Memuat profil...</p>
-    }
-
-    const validationError = validateUsername(username)
-    const showError = touched && validationError
-    const unchanged = username === user.username
+    const formatError = validateFormat(username)
+    const error = formatError ?? serverError
+    const showError = touched && !!error
+    const unchanged = username === user?.username
 
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault()
         if (!user) return
         setTouched(true)
-        if (validationError || unchanged) return
+        if (formatError || unchanged) return
 
         setSubmitting(true)
         setStatus(null)
+        setServerError(null)
         try {
+            const used = await isUsernameAvaible(username)
+            if (used) {
+                setServerError("Username telah digunakan!")
+                return
+            }
+
             const result = await updateUsername(username)
-            setUser({ ...user, username: result.username }) // invalidate / refresh zustand
+            setUser({ ...user, username: result.username })
             setStatus({ type: "success", message: "Username berhasil diperbarui." })
         } catch (err) {
             setStatus({
                 type: "error",
-                message: err instanceof Error ? err.message : "Gagal memperbarui username.",
+                message: err instanceof ApiError || err instanceof Error
+                    ? err.message
+                    : "Gagal memperbarui username.",
             })
         } finally {
             setSubmitting(false)
@@ -77,17 +86,18 @@ export function UpdateUsernameForm() {
                         autoComplete="off"
                         autoCapitalize="none"
                         spellCheck={false}
-                        aria-invalid={!!showError}
+                        aria-invalid={showError}
                         className="pl-7"
                         onChange={(e) => {
                             setUsername(e.target.value)
                             setTouched(true)
+                            setServerError(null)
                             setStatus(null)
                         }}
                     />
                 </div>
                 {showError ? (
-                    <p className="text-sm text-destructive">{validationError}</p>
+                    <p className="text-sm text-destructive">{error}</p>
                 ) : (
                     <p className="text-sm text-muted-foreground">
                         {USERNAME_MIN}-{USERNAME_MAX} karakter. Huruf, angka, titik, dan underscore.
@@ -111,11 +121,22 @@ export function UpdateUsernameForm() {
 
             <Button
                 type="submit"
-                disabled={submitting || unchanged || !!validationError}
+                disabled={submitting || unchanged || !!formatError}
                 className="w-full md:w-auto"
             >
                 {submitting ? "Menyimpan..." : "Simpan username"}
             </Button>
         </form>
     )
+}
+
+export function UpdateUsernameForm() {
+    const user = useAuthStore((state) => state.user)
+
+    if (!user) {
+        return <p className="text-sm text-muted-foreground">Memuat profil...</p>
+    }
+
+    return <FormInner />
+
 }

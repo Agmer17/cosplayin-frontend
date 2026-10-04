@@ -42,3 +42,4 @@ export async function updateUsername(username: string): Promise<{ username: stri
   await profileClientApi.updateMyUsername(username)
   return { username }
 }
+

@@ -10,7 +10,7 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { DetailProfileDTO } from "@/lib/type/profile"
-import { resolvePublicMedia } from "@/lib/ImageUrlResolver"
+import { resolvePublicMedia } from "@/lib/image-url-resolver"
 
 interface SidebarProfileProps {
     profile: DetailProfileDTO | null
@@ -18,7 +18,6 @@ interface SidebarProfileProps {
 }
 
 export function SidebarProfile({ profile, hovered }: SidebarProfileProps) {
-    // ── Logged out ──────────────────────────────────────────────
     if (profile == null) {
         return (
             <SidebarMenu className="w-full">

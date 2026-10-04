@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import type { DetailProfileDTO } from "@/lib/type/profile";
 import { UserRole, UserStatus } from "@/lib/type/user";
-import { resolvePublicMedia } from "@/lib/ImageUrlResolver";
+import { resolvePublicMedia } from "@/lib/image-url-resolver";
 
 type ProfileHeaderProps = {
     profile: DetailProfileDTO;

@@ -34,7 +34,10 @@ export const postsApi = {
             clientApi.delete("/posts/"+ id),
 
         getFeed :  () => 
-            clientApi.get<PostsResponse[]>("/posts/feed")
+            clientApi.get<PostsResponse[]>("/posts/feed"),
+
+        getMyBookmark : () => 
+            clientApi.get<PostsResponse[]>("/profiles/me/bookmark") 
 
         
 

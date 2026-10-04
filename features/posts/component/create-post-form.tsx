@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { PostsCommentStatus } from "@/lib/type/posts";
 import { postsApi } from "../api/posts.client";
 import { toast } from "sonner";
-import { resolvePublicMedia } from "@/lib/ImageUrlResolver";
+import { resolvePublicMedia } from "@/lib/image-url-resolver";
 
 const COMMENT_STATUS_OPTIONS: { value: PostsCommentStatus; label: string }[] = [
     { value: " AVAIBLE ", label: "Izinkan semua komentar" },
