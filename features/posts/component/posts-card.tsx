@@ -284,6 +284,7 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
 
             {commentsEnabled && (
                 <CommentsPanel
+                    postId={post.posts_id}
                     open={commentsOpen}
                     onOpenChange={setCommentsOpen}
                     currentUser={currentUser}

@@ -9,10 +9,8 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import type { PostsResponse } from "@/lib/type/posts";
-import { PostCommentsEmpty } from "./posts-comment-empty";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
 import { usePostsBookmark, usePostsLike } from "../hooks/use-posts";
@@ -22,6 +20,13 @@ import { useState } from "react";
 import { PostOptionsDialog } from "./post-option-dialog";
 import { toast } from "sonner";
 import { CommentsPanel } from "./comments-pannel";
+
+
+
+import {
+    PostCommentComposer,
+    PostCommentsSection,
+} from "@/features/comment/component/post-comment";
 
 type PostDetailSidebarProps = {
     post: PostsResponse;
@@ -92,31 +97,43 @@ export function PostDetailSidebar({
 
     if (headerOnly) {
         return (
-            <div className="bg-background p-4">
-                <div className="flex items-center justify-between">
-                    <Link href={authorRedirect}>
-                        <div className="flex min-w-0 items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage
-                                    src={resolvePublicMedia(author.avatar_url)}
-                                    alt={author.display_name}
-                                />
-                                <AvatarFallback>
-                                    {author.display_name.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold">
-                                    {author.display_name}
-                                </p>
-                                <p className="truncate text-xs text-muted-foreground">
-                                    @{author.username}
-                                </p>
-                            </div>
+            <div className="border-b bg-background px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                    <Link
+                        href={authorRedirect}
+                        className="flex min-w-0 items-center gap-2.5"
+                    >
+                        <Avatar className="size-8 shrink-0">
+                            <AvatarImage
+                                src={resolvePublicMedia(author.avatar_url)}
+                                alt={author.display_name}
+                            />
+                            <AvatarFallback>
+                                {author.display_name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold leading-5">
+                                {author.username}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                                {author.display_name}
+                            </p>
                         </div>
                     </Link>
 
-                    <MoreHorizontal className="h-5 w-5" onClick={() => setOpen(true)} />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 shrink-0 rounded-full"
+                        aria-label="Opsi postingan"
+                        onClick={() => setOpen(true)}
+                    >
+                        <MoreHorizontal className="size-5" />
+                    </Button>
+
                     <PostOptionsDialog
                         open={open}
                         onOpenChange={setOpen}
@@ -129,145 +146,170 @@ export function PostDetailSidebar({
         );
     }
 
-    // ===== Full sidebar =====
     return (
-        <div className="flex min-h-0 flex-col bg-background md:h-full">
-            {/* Header – hidden on mobile when already rendered above media */}
+        <div className="flex min-h-0 w-full flex-col bg-background md:h-full">
             {!hideHeader && (
-                <>
-                    <div className="shrink-0 p-4">
-                        <div className="flex items-center justify-between">
-                            <Link href={authorRedirect}>
-                                <div className="flex min-w-0 items-center gap-3">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage
-                                            src={resolvePublicMedia(author.avatar_url)}
-                                            alt={author.display_name}
-                                        />
-                                        <AvatarFallback>
-                                            {author.display_name.charAt(0).toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold">
-                                            {author.display_name}
-                                        </p>
-                                        <p className="truncate text-xs text-muted-foreground">
-                                            @{author.username}
-                                        </p>
-                                    </div>
-                                </div>
-                            </Link>
-
-                            <MoreHorizontal className="h-5 w-5" onClick={() => setOpen(true)} />
-                            <PostOptionsDialog
-                                open={open}
-                                onOpenChange={setOpen}
-                                postId={post.posts_id}
-                                isAuthor={currentProfile?.id === author.id}
-                                onDelete={onDeletePosts}
+                <div className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3">
+                    <Link
+                        href={authorRedirect}
+                        className="flex min-w-0 items-center gap-2.5"
+                    >
+                        <Avatar className="size-8 shrink-0">
+                            <AvatarImage
+                                src={resolvePublicMedia(author.avatar_url)}
+                                alt={author.display_name}
                             />
+                            <AvatarFallback>
+                                {author.display_name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold leading-5">
+                                {author.username}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                                {author.display_name}
+                            </p>
                         </div>
-                    </div>
-                    <Separator />
-                </>
+                    </Link>
+
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 shrink-0 rounded-full"
+                        aria-label="Opsi postingan"
+                        onClick={() => setOpen(true)}
+                    >
+                        <MoreHorizontal className="size-5" />
+                    </Button>
+
+                    <PostOptionsDialog
+                        open={open}
+                        onOpenChange={setOpen}
+                        postId={post.posts_id}
+                        isAuthor={currentProfile?.id === author.id}
+                        onDelete={onDeletePosts}
+                    />
+                </div>
             )}
 
-            {/* Caption + Comments */}
+            {/* Caption dan komentar */}
             <div className="min-h-0 flex-1 overflow-y-auto">
                 {post.caption && (
                     <>
-                        <div className="p-4 text-sm leading-relaxed">
-                            <span className="mr-1.5 font-semibold">{author.username}</span>
-                            <span className="whitespace-pre-line">{post.caption}</span>
+                        <div className="flex items-start gap-3 px-4 py-4">
+                            <p className="min-w-0 flex-1 wrap-break-word text-sm leading-5">
+                                <Link
+                                    href={authorRedirect}
+                                    className="mr-1.5 font-semibold hover:text-muted-foreground"
+                                >
+                                    {author.username}
+                                </Link>
+                                <span className="whitespace-pre-line">
+                                    {post.caption}
+                                </span>
+                            </p>
                         </div>
-                        <Separator />
+
+                        <Separator className="opacity-50" />
                     </>
                 )}
-                {!isMobile && <PostCommentsEmpty />}
+
+                {!isMobile && (
+                    <PostCommentsSection
+                        postId={post.posts_id}
+                        currentProfile={currentProfile}
+                    />
+                )}
             </div>
 
-            {/* Bottom section */}
-            <div className="shrink-0">
-                <Separator />
-                {/* Actions */}
-                <div className="flex items-center justify-between px-3 pt-2">
+            {/* Aksi dan informasi postingan */}
+            <div className="shrink-0 border-t">
+                <div className="flex items-center justify-between px-3 pt-1.5">
                     <div className="flex items-center gap-1">
                         <Button
                             type="button"
                             variant="ghost"
+                            size="icon"
+                            className="size-10 rounded-full p-0 hover:bg-muted/60"
                             aria-label="Like"
                             aria-pressed={liked}
                             disabled={loading}
                             onClick={handleToggleLike}
                         >
                             <Heart
-                                className={
-                                    liked
-                                        ? "h-6! w-6! fill-current text-destructive"
-                                        : "h-6! w-6!"
-                                }
+                                className={`size-6 ${liked
+                                    ? "fill-current text-destructive"
+                                    : ""
+                                    }`}
                             />
                         </Button>
-                        <Button type="button" variant="ghost" aria-label="Komentar"
+
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-10 rounded-full p-0 hover:bg-muted/60"
+                            aria-label="Komentar"
                             onClick={() => {
                                 if (isMobile) {
-                                    setCommentOpen(true)
+                                    setCommentOpen(true);
                                 }
-                            }}>
-                            <MessageCircle className="h-6! w-6!" />
+                            }}
+                        >
+                            <MessageCircle className="size-6" />
                         </Button>
-                        <Button type="button" variant="ghost" aria-label="Bagikan">
-                            <Send className="h-6! w-6!" />
+
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-10 rounded-full p-0 hover:bg-muted/60"
+                            aria-label="Bagikan"
+                        >
+                            <Send className="size-6" />
                         </Button>
                     </div>
+
                     <Button
                         type="button"
                         variant="ghost"
                         size="icon"
+                        className="size-10 rounded-full p-0 hover:bg-muted/60"
                         aria-label="Simpan"
                         aria-pressed={post.bookmarked}
                         onClick={handleToggleBookmark}
                     >
                         <Bookmark
-                            className={
-                                bookmarked ? "h-6! w-6! fill-current" : "h-6! w-6!"
-                            }
+                            className={`size-6 ${bookmarked ? "fill-current" : ""
+                                }`}
                         />
                     </Button>
                 </div>
 
-                <div className="space-y-1 px-4 pb-3">
+                <div className="space-y-1 px-4 pb-3 pt-1">
                     <p className="text-sm font-semibold">
                         {compactNumber.format(post.like_count)} suka
                     </p>
+
                     <p className="text-xs text-muted-foreground">
                         {dateFormatter.format(new Date(post.created_at))}
                     </p>
                 </div>
 
-                {/* Comment Input – still hidden on mobile as before */}
-                <Separator />
                 {!isMobile && (
-                    <div className="flex items-center gap-2 p-3">
-                        <Input
-                            placeholder="Tambahkan komentar..."
-                            className="shadow-none"
-                        />
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="shrink-0 font-semibold"
-                        >
-                            Kirim
-                        </Button>
-                    </div>
+                    <PostCommentComposer
+                        postId={post.posts_id}
+                        currentProfile={currentProfile}
+                    />
                 )}
             </div>
 
             {isMobile && (
                 <CommentsPanel
+                    postId={post.posts_id}
                     open={commentOpen}
                     onOpenChange={setCommentOpen}
                     currentUser={currentProfile}

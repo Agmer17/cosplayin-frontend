@@ -5,7 +5,7 @@ export function resolveMediaUrl(url : string) {
         return url
     } 
 
-    return `${process.env.NEXT_PUBLIC_BACKEND_API_UPLOADS}${url}` 
+    return `${process.env.NEXT_PUBLIC_BACKEND_API_UPLOADS}/${url}` 
     
 }
 export function resolvePublicMedia(url : string) {
