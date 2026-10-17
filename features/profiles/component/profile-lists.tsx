@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { DetailProfileDTO } from "@/lib/type/profile";
 import { resolvePublicMedia } from "@/lib/image-url-resolver";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type Props = {
     users?: DetailProfileDTO[];
@@ -53,14 +54,13 @@ export function ProfileList({
                     className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50"
                 >
 
-                    <img
-                        src={resolvePublicMedia(user.avatar_url)}
-                        alt={user.display_name}
-                        width={48}
-                        height={48}
-                        className="rounded-full object-cover"
-                        referrerPolicy="no-referrer"
-                    />
+                    <Avatar>
+                        <AvatarImage src={resolvePublicMedia(user.avatar_url)} />
+                        <AvatarFallback>
+                            test
+                        </AvatarFallback>
+
+                    </Avatar>
 
                     <div className="min-w-0 flex-1">
                         <p className="truncate font-medium">

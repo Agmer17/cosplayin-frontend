@@ -8,6 +8,7 @@ import {
     Heart,
     MessageCircle,
     MoreHorizontal,
+    Send,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,34 +26,12 @@ import { usePostsBookmark, usePostsLike } from "../hooks/use-posts";
 import { PostOptionsDialog } from "./post-option-dialog";
 import { toast } from "sonner";
 import { CommentsPanel } from "./comments-pannel";
+import { compactNumber, timeAgo } from "@/lib/number-formatter-utils";
 
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                    */
 /* -------------------------------------------------------------------------- */
 
-const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
-    ["year", 31_536_000],
-    ["month", 2_592_000],
-    ["week", 604_800],
-    ["day", 86_400],
-    ["hour", 3_600],
-    ["minute", 60],
-];
-
-function timeAgo(iso: string) {
-    const diffSec = (new Date(iso).getTime() - Date.now()) / 1000;
-    const rtf = new Intl.RelativeTimeFormat("id", { numeric: "auto" });
-    for (const [unit, sec] of RELATIVE_UNITS) {
-        if (Math.abs(diffSec) >= sec) {
-            return rtf.format(Math.round(diffSec / sec), unit);
-        }
-    }
-    return "baru saja";
-}
-
-function formatCount(n: number) {
-    return new Intl.NumberFormat("id", { notation: "compact" }).format(n);
-}
 
 
 function UserAvatar({
@@ -136,8 +115,6 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
     const isLongCaption =
         current.caption.length > 110 || current.caption.includes("\n");
 
-
-
     return (
         <article
             className={cn(
@@ -181,7 +158,8 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
             <PostDetailMedia media={current.media} caption={current.caption} />
 
             {/* Actions */}
-            <div className="flex items-center gap-1 px-4 pt-2">
+            <div className="flex items-center gap-1 px-2 pt-2">
+                {/* Like */}
                 <Button
                     variant="ghost"
                     size="icon"
@@ -196,18 +174,40 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
                         )}
                     />
                 </Button>
+                <span className="text-sm font-semibold -ml-1 mr-3">
+                    {compactNumber.format(current.like_count)}
+                </span>
 
+                {/* Comment */}
                 {commentsEnabled && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Buka komentar"
-                        onClick={() => setCommentsOpen(true)}
-                    >
-                        <MessageCircle className="size-6" />
-                    </Button>
+                    <>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Buka komentar"
+                            onClick={() => setCommentsOpen(true)}
+                        >
+                            <MessageCircle className="size-6" />
+                        </Button>
+                        <span className="text-sm font-semibold -ml-1 mr-3">
+                            {compactNumber.format(current.comment_count)}
+                        </span>
+                    </>
                 )}
 
+                {/* Share (optional – Instagram style) */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Bagikan"
+                >
+                    <Send className="size-6" />
+                </Button>
+                <span className="text-sm font-semibold -ml-1">
+                    {compactNumber.format(current.share_count)}
+                </span>
+
+                {/* Bookmark – pushed to the right */}
                 <Button
                     variant="ghost"
                     size="icon"
@@ -223,13 +223,14 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
                         )}
                     />
                 </Button>
+                <span className="text-sm font-semibold -ml-1">
+                    {compactNumber.format(current.bookmark_count)}
+                </span>
             </div>
 
             {/* Meta */}
             <div className="space-y-1 px-4 pb-3">
-                <p className="text-sm font-semibold">
-                    {formatCount(current.like_count)} suka
-                </p>
+
 
                 {current.caption && (
                     <div className="text-sm">

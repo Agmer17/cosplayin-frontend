@@ -50,16 +50,15 @@ export function ProfileHeader({
     return (
         <header className="w-full">
             {/* Banner */}
-            <div className="aspect-3/1 w-full overflow-hidden bg-primary/10 md:rounded-b-xl">
+            <div className="aspect-3/1 w-full overflow-hidden md:rounded-b-xl">
                 {profile.banner_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
+                    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
                     <img
                         src={resolvePublicMedia(profile.banner_url)}
-                        alt={`Banner ${profile.display_name}`}
                         className="h-full w-full object-cover"
                     />
                 ) : (
-                    <div className="h-full w-full bg-accent" />
+                    <div className="h-full w-full bg-gradient-to-br from-primary/80 via-primary/50 to-primary/20" />
                 )}
             </div>
 

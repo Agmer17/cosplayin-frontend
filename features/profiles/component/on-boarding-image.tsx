@@ -1,184 +1,174 @@
-/* eslint-disable @next/next/no-img-element */
+// components/onboarding-image-upload.tsx  (atau image-upload-with-crop.tsx)
 "use client";
 
 import { useRef, useState } from "react";
-import { ImageIcon, Upload, X } from "lucide-react";
+import { Camera, ImageIcon, X } from "lucide-react";
+import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ImageCropDialog, type CropAspect } from "@/components/image/ImageCropping";
 
-interface ImageUploadCardProps {
+interface ImageUploadWithCropProps {
     id: string;
-    label: string;
-    description: string;
-    error?: string;
+    aspect: CropAspect;
+    /** File hasil crop (sudah jadi File) */
+    value: File | null;
     onChange: (file: File | null) => void;
+    error?: string;
+    /** Untuk avatar biasanya lingkaran, banner rectangular */
+    className?: string;
+    /** Preview shape */
+    shape?: "circle" | "rounded";
+    label?: string;
+    /** Max size in MB */
+    maxSizeMB?: number;
 }
 
-export function ImageUploadCard({
+const ACCEPTED = "image/jpeg,image/png,image/webp,image/gif";
+
+export function ImageUploadWithCrop({
     id,
-    label,
-    description,
-    error,
+    aspect,
+    value,
     onChange,
-}: ImageUploadCardProps) {
+    error,
+    className,
+    shape = "rounded",
+    label,
+    maxSizeMB = 5,
+}: ImageUploadWithCropProps) {
     const inputRef = useRef<HTMLInputElement>(null);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [cropOpen, setCropOpen] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    const [file, setFile] = useState<File | null>(null);
-    const [preview, setPreview] = useState<string | null>(null);
+    // Sync preview dari value
+    // (bisa diganti useEffect jika value berubah dari luar)
+    if (value && !previewUrl) {
+        // fallback — idealnya pakai useEffect
+    }
 
-    const handleFileChange = (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        const selectedFile = event.target.files?.[0];
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-        if (!selectedFile) {
+        // Reset input supaya bisa pilih file yang sama lagi
+        e.target.value = "";
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("File harus berupa gambar.");
             return;
         }
 
-        if (!selectedFile.type.startsWith("image/")) {
-            event.target.value = "";
+        if (file.size > maxSizeMB * 1024 * 1024) {
+            toast.error(`Ukuran gambar maksimal ${maxSizeMB}MB.`);
             return;
         }
 
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            if (typeof reader.result !== "string") {
-                return;
-            }
-
-            setFile(selectedFile);
-            setPreview(reader.result);
-            onChange(selectedFile);
-        };
-
-        reader.readAsDataURL(selectedFile);
+        setPendingFile(file);
+        setCropOpen(true);
     };
 
-    const handleRemove = () => {
-        setFile(null);
-        setPreview(null);
+    const handleCropComplete = (cropped: File) => {
+        // Revoke previous preview
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+
+        const url = URL.createObjectURL(cropped);
+        setPreviewUrl(url);
+        onChange(cropped);
+        setPendingFile(null);
+    };
+
+    const handleRemove = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
         onChange(null);
-
-        if (inputRef.current) {
-            inputRef.current.value = "";
-        }
     };
 
-    const handleUploadClick = () => {
+    const openFilePicker = () => {
         inputRef.current?.click();
     };
 
+    // Jika value sudah ada tapi preview belum (misal setelah re-render)
+    const displayUrl = previewUrl ?? (value ? URL.createObjectURL(value) : null);
+
     return (
-        <Card className="overflow-hidden">
-            <CardHeader>
-                <CardTitle className="text-base">{label}</CardTitle>
+        <>
+            <div className={cn("relative", className)}>
+                <input
+                    ref={inputRef}
+                    id={id}
+                    type="file"
+                    accept={ACCEPTED}
+                    className="sr-only"
+                    onChange={handleFileSelect}
+                />
 
-                <CardDescription>
-                    {description}
-                </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-                <div className="relative overflow-hidden rounded-lg border bg-muted">
-                    {preview ? (
+                <button
+                    type="button"
+                    onClick={openFilePicker}
+                    className={cn(
+                        "group relative flex w-full items-center justify-center overflow-hidden border-2 border-dashed border-muted-foreground/25 bg-muted/40 transition hover:border-primary/50 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        shape === "circle" ? "aspect-square rounded-full" : "aspect-[3/1] rounded-xl",
+                        error && "border-destructive",
+                        displayUrl && "border-solid border-border",
+                    )}
+                >
+                    {displayUrl ? (
                         <>
-
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={preview}
-                                alt={`Preview ${label}`}
-                                className="aspect-video w-full object-cover"
+                                src={displayUrl}
+                                alt={label ?? "Preview"}
+                                className={cn(
+                                    "h-full w-full object-cover",
+                                    shape === "circle" ? "rounded-full" : "rounded-xl",
+                                )}
                             />
-
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="icon"
-                                className="absolute right-2 top-2"
-                                onClick={handleRemove}
-                                aria-label={`Hapus ${label}`}
-                            >
-                                <X />
-                            </Button>
+                            {/* Overlay saat hover */}
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+                                <Camera className="size-6 text-white" />
+                            </div>
                         </>
                     ) : (
-                        <button
-                            type="button"
-                            onClick={handleUploadClick}
-                            className="flex aspect-video w-full flex-col items-center justify-center gap-3 transition-colors hover:bg-accent"
-                        >
-                            <div className="flex size-12 items-center justify-center rounded-full bg-background">
-                                <ImageIcon className="size-6 text-muted-foreground" />
-                            </div>
-
-                            <div className="space-y-1 text-center">
-                                <p className="text-sm font-medium">
-                                    Pilih gambar
-                                </p>
-
-                                <p className="text-xs text-muted-foreground">
-                                    JPG, PNG, atau WebP
-                                </p>
-                            </div>
-                        </button>
+                        <div className="flex flex-col items-center gap-2 p-4 text-muted-foreground">
+                            {aspect === "avatar" ? (
+                                <Camera className="size-8" />
+                            ) : (
+                                <ImageIcon className="size-8" />
+                            )}
+                            <span className="text-xs font-medium">
+                                {label ?? (aspect === "avatar" ? "Tambah foto" : "Tambah banner")}
+                            </span>
+                        </div>
                     )}
-                </div>
+                </button>
 
-                <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                        <Label
-                            htmlFor={`${id}-file`}
-                            className="sr-only"
-                        >
-                            {label}
-                        </Label>
-
-                        <Input
-                            ref={inputRef}
-                            id={`${id}-file`}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            className="hidden"
-                            onChange={handleFileChange}
-                        />
-
-                        {file ? (
-                            <p className="truncate text-sm text-muted-foreground">
-                                {file.name}
-                            </p>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">
-                                Belum ada gambar
-                            </p>
-                        )}
-                    </div>
-
+                {/* Tombol hapus */}
+                {displayUrl && (
                     <Button
                         type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleUploadClick}
+                        size="icon"
+                        variant="secondary"
+                        className="absolute -right-2 -top-2 size-7 rounded-full shadow"
+                        onClick={handleRemove}
                     >
-                        <Upload />
-                        {file ? "Ganti" : "Upload"}
+                        <X className="size-3.5" />
                     </Button>
-                </div>
-
-                {error && (
-                    <p className="text-sm text-destructive">
-                        {error}
-                    </p>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+
+            {error && <p className="mt-1.5 text-sm text-destructive">{error}</p>}
+
+            <ImageCropDialog
+                open={cropOpen}
+                onOpenChange={setCropOpen}
+                imageFile={pendingFile}
+                aspect={aspect}
+                onCropComplete={handleCropComplete}
+            />
+        </>
     );
 }

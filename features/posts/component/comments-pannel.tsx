@@ -21,6 +21,7 @@ import {
 import type { DetailProfileDTO } from "@/lib/type/profile";
 
 import {
+    CommentReplyProvider,
     PostCommentComposer,
     PostCommentsSection,
 } from "@/features/comment/component/post-comment";
@@ -40,21 +41,23 @@ function CommentsBody({
     currentUser: DetailProfileDTO | null;
 }) {
     return (
-        <div className="flex min-h-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1 overflow-y-auto">
-                <PostCommentsSection
-                    postId={postId}
-                    currentProfile={currentUser}
-                />
-            </div>
+        <CommentReplyProvider>
+            <div className="flex min-h-0 flex-1 flex-col">
+                <div className="min-h-0 flex-1 overflow-y-auto">
+                    <PostCommentsSection
+                        postId={postId}
+                        currentProfile={currentUser}
+                    />
+                </div>
 
-            <div className="shrink-0 border-t bg-background pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                <PostCommentComposer
-                    postId={postId}
-                    currentProfile={currentUser}
-                />
+                <div className="shrink-0 border-t bg-background pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                    <PostCommentComposer
+                        postId={postId}
+                        currentProfile={currentUser}
+                    />
+                </div>
             </div>
-        </div>
+        </CommentReplyProvider>
     );
 }
 
@@ -80,10 +83,7 @@ export function CommentsPanel({
                         </SheetDescription>
                     </SheetHeader>
 
-                    <CommentsBody
-                        postId={postId}
-                        currentUser={currentUser}
-                    />
+                    <CommentsBody postId={postId} currentUser={currentUser} />
                 </SheetContent>
             </Sheet>
         );
@@ -91,7 +91,6 @@ export function CommentsPanel({
 
     return (
         <Drawer open={open} onOpenChange={onOpenChange}>
-            {/* Changed max-h-[85dvh] to h-[85dvh] for fixed predictable height */}
             <DrawerContent className="flex h-[75%] flex-col gap-0 overflow-hidden p-0">
                 <DrawerHeader className="shrink-0 border-b text-center">
                     <DrawerTitle>Komentar</DrawerTitle>
@@ -100,10 +99,7 @@ export function CommentsPanel({
                     </DrawerDescription>
                 </DrawerHeader>
 
-                <CommentsBody
-                    postId={postId}
-                    currentUser={currentUser}
-                />
+                <CommentsBody postId={postId} currentUser={currentUser} />
             </DrawerContent>
         </Drawer>
     );

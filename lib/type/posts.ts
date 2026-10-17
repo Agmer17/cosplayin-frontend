@@ -22,6 +22,7 @@ export type PostsResponse = {
   like_count: number;
   bookmark_count: number;
   share_count: number;
+  comment_count : number;
   created_at: string;
   liked: boolean;
   bookmarked: boolean;

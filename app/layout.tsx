@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
 
 import { Google_Sans_Flex, Source_Code_Pro } from "next/font/google";
+import { WebSocketProvider } from "@/components/websocket/websocket-provider";
 
 const fontSans = Google_Sans_Flex({
   subsets: ["latin"],
@@ -54,8 +55,10 @@ export default async function RootLayout({
         >
           <AuthProvider user={profile}>
             <QueryProvider>
-              <Toaster richColors position={"top-center"} />
-              {children}
+              <WebSocketProvider>
+                <Toaster richColors position={"top-center"} />
+                {children}
+              </WebSocketProvider>
             </QueryProvider>
           </AuthProvider>
         </ThemeProvider>

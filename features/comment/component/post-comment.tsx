@@ -1,13 +1,25 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+    type FormEvent,
+    type ReactNode,
+} from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
 import {
     ChevronDown,
     ChevronUp,
+    Flag,
     Heart,
     MessageCircle,
-    Send,
+    MoreHorizontal,
+    Trash2,
+    X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,28 +29,120 @@ import {
     AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import type {
-    CommentResponse,
-} from "@/lib/type/comment";
+import type { CommentResponse } from "@/lib/type/comment";
 import type { DetailProfileDTO } from "@/lib/type/profile";
 import { resolvePublicMedia } from "@/lib/image-url-resolver";
 
 import {
     useCommentReplies,
     useCreateComment,
+    useDeleteComment,
     usePostComments,
     useToggleCommentLike,
 } from "../hooks/use-comment";
+import { compactNumber } from "@/lib/number-formatter-utils";
 
-const compactNumber = new Intl.NumberFormat("id-ID", {
-    notation: "compact",
-    maximumFractionDigits: 1,
-});
+const MAX_INDENT_DEPTH = 1;
 
-const MAX_INDENT_DEPTH = 3;
+// ---------------------------------------------------------------------------
+// Reply context
+// ---------------------------------------------------------------------------
+
+type ReplyTarget = {
+    id: string;
+    username: string;
+} | null;
+
+type CommentReplyContextValue = {
+    replyTo: ReplyTarget;
+    startReply: (target: { id: string; username: string }) => void;
+    cancelReply: () => void;
+    registerComposerFocus: (fn: () => void) => void;
+    registerOnReplyStart: (fn: (username: string) => void) => void;
+    registerOnReplyCancel: (fn: () => void) => void;
+};
+
+const CommentReplyContext = createContext<CommentReplyContextValue | null>(
+    null
+);
+
+function useCommentReply() {
+    const ctx = useContext(CommentReplyContext);
+    if (!ctx) {
+        throw new Error(
+            "useCommentReply must be used inside <CommentReplyProvider>"
+        );
+    }
+    return ctx;
+}
+
+export function CommentReplyProvider({ children }: { children: ReactNode }) {
+    const [replyTo, setReplyTo] = useState<ReplyTarget>(null);
+
+    const focusFnRef = useRef<(() => void) | null>(null);
+    const onReplyStartRef = useRef<((username: string) => void) | null>(null);
+    const onReplyCancelRef = useRef<(() => void) | null>(null);
+
+    const registerComposerFocus = useCallback((fn: () => void) => {
+        focusFnRef.current = fn;
+    }, []);
+
+    const registerOnReplyStart = useCallback(
+        (fn: (username: string) => void) => {
+            onReplyStartRef.current = fn;
+        },
+        []
+    );
+
+    const registerOnReplyCancel = useCallback((fn: () => void) => {
+        onReplyCancelRef.current = fn;
+    }, []);
+
+    const startReply = useCallback(
+        (target: { id: string; username: string }) => {
+            setReplyTo(target);
+            onReplyStartRef.current?.(target.username);
+            requestAnimationFrame(() => {
+                focusFnRef.current?.();
+            });
+        },
+        []
+    );
+
+    const cancelReply = useCallback(() => {
+        setReplyTo(null);
+        onReplyCancelRef.current?.();
+    }, []);
+
+    return (
+        <CommentReplyContext.Provider
+            value={{
+                replyTo,
+                startReply,
+                cancelReply,
+                registerComposerFocus,
+                registerOnReplyStart,
+                registerOnReplyCancel,
+            }}
+        >
+            {children}
+        </CommentReplyContext.Provider>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function formatCommentDate(value: string) {
     if (!value) return "";
@@ -106,6 +210,10 @@ function CommentListSkeleton() {
     );
 }
 
+// ---------------------------------------------------------------------------
+// CommentItem
+// ---------------------------------------------------------------------------
+
 function CommentItem({
     postId,
     comment,
@@ -118,27 +226,24 @@ function CommentItem({
     depth?: number;
 }) {
     const [repliesOpen, setRepliesOpen] = useState(false);
-    const [replyOpen, setReplyOpen] = useState(false);
-    const [replyDraft, setReplyDraft] = useState("");
 
     const isFlat = depth >= MAX_INDENT_DEPTH;
 
-    const repliesQuery = useCommentReplies(
-        comment.id,
-        repliesOpen
-    );
-
-    const createReply = useCreateComment(postId);
+    const repliesQuery = useCommentReplies(comment.id, repliesOpen);
     const toggleLike = useToggleCommentLike();
+    const deleteComment = useDeleteComment(postId);
+    const { startReply } = useCommentReply();
 
     const isLiked = comment.is_liked ?? false;
+    const isOwner =
+        !!currentProfile?.username &&
+        currentProfile.username === comment.username;
 
     function handleLike() {
         if (!currentProfile) {
             toast.error("Kamu harus login untuk menyukai komentar.");
             return;
         }
-
         toggleLike.mutate(comment.id);
     }
 
@@ -148,44 +253,29 @@ function CommentItem({
             return;
         }
 
-        if (!replyOpen && isFlat && !replyDraft) {
-            setReplyDraft(`@${comment.username} `);
-        }
-        setReplyOpen((previous) => !previous);
+        startReply({ id: comment.id, username: comment.username });
     }
 
-    function handleSubmitReply(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-
-        const value = replyDraft.trim();
-
-        if (!value || createReply.isPending) {
-            return;
-        }
-
-        createReply.mutate(
-            {
-                comment: value,
-                replyTo: comment.id,
+    function handleDelete() {
+        deleteComment.mutate(comment.id, {
+            onSuccess: () => {
+                toast.success("Komentar berhasil dihapus.");
             },
-            {
-                onSuccess: () => {
-                    setReplyDraft("");
-                    setReplyOpen(false);
-                    setRepliesOpen(true);
-                },
-                onError: () => {
-                    toast.error("Gagal mengirim balasan.");
-                },
-            }
-        );
+            onError: () => {
+                toast.error("Gagal menghapus komentar.");
+            },
+        });
+    }
+
+    function handleReport() {
+        // Placeholder — ganti dengan API report kalau sudah ada
+        toast.success("Laporan komentar telah dikirim.");
     }
 
     const replies = repliesQuery.data ?? [];
 
     return (
         <div className="flex flex-col">
-            {/* Main Comment Wrapper */}
             <div className="flex items-start gap-3">
                 <CommentAvatar
                     username={comment.username}
@@ -193,12 +283,58 @@ function CommentItem({
                 />
 
                 <div className="min-w-0 flex-1">
-                    <p className="wrap-break-word text-sm leading-5">
-                        <span className="mr-1.5 font-semibold">
-                            {comment.username}
-                        </span>
-                        {comment.comment}
-                    </p>
+                    <div className="flex items-start gap-2">
+                        <p className="min-w-0 flex-1 wrap-break-word text-sm leading-5">
+                            <span className="mr-1.5 font-semibold">
+                                {comment.username}
+                            </span>
+
+                            {comment.comment}
+                        </p>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger
+                                render={
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-7 shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
+                                    />
+                                }
+                            >
+                                <MoreHorizontal className="size-4" />
+                                <span className="sr-only">Opsi komentar</span>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem
+                                    onClick={handleReport}
+                                    className="gap-2"
+                                >
+                                    <Flag className="size-4" />
+                                    Laporkan
+                                </DropdownMenuItem>
+
+                                {isOwner && (
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            variant="destructive"
+                                            onClick={handleDelete}
+                                            disabled={deleteComment.isPending}
+                                            className="gap-2"
+                                        >
+                                            <Trash2 className="size-4" />
+                                            {deleteComment.isPending
+                                                ? "Menghapus..."
+                                                : "Hapus"}
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
 
                     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
                         <time
@@ -251,7 +387,7 @@ function CommentItem({
                                 className="h-auto rounded-none px-0 py-0 text-xs font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
                                 aria-expanded={repliesOpen}
                                 onClick={() =>
-                                    setRepliesOpen((previous) => !previous)
+                                    setRepliesOpen((prev) => !prev)
                                 }
                             >
                                 {repliesOpen ? (
@@ -259,56 +395,21 @@ function CommentItem({
                                 ) : (
                                     <ChevronDown className="size-3.5" />
                                 )}
-
                                 {repliesOpen
                                     ? "Sembunyikan balasan"
                                     : `Lihat ${comment.reply_count} balasan`}
                             </Button>
                         )}
                     </div>
-
-                    {replyOpen && (
-                        <form
-                            className="mt-3 flex min-w-0 items-center gap-2"
-                            onSubmit={handleSubmitReply}
-                        >
-                            <Input
-                                value={replyDraft}
-                                onChange={(event) =>
-                                    setReplyDraft(event.target.value)
-                                }
-                                placeholder={`Balas @${comment.username}...`}
-                                aria-label={`Balas komentar ${comment.username}`}
-                                autoComplete="off"
-                                className="h-9 min-w-0 flex-1 rounded-full bg-muted/30 shadow-none"
-                                disabled={createReply.isPending}
-                            />
-
-                            <Button
-                                type="submit"
-                                variant="ghost"
-                                size="icon"
-                                className="size-9 shrink-0 rounded-full"
-                                aria-label="Kirim balasan"
-                                disabled={
-                                    !replyDraft.trim() ||
-                                    createReply.isPending
-                                }
-                            >
-                                <Send className="size-4" />
-                            </Button>
-                        </form>
-                    )}
                 </div>
             </div>
 
-            {/* Replies Container moved OUTSIDE the flex-1 text wrapper */}
             {repliesOpen && (
                 <div
                     className={
                         isFlat
-                            ? "mt-4 space-y-4" // Flat replies stack without extra left margin
-                            : "ml-11 mt-4 space-y-4 border-l pl-3 sm:ml-12 sm:pl-4" // ml-11 specifically offsets the 32px avatar + 12px gap
+                            ? "mt-4 space-y-4"
+                            : "ml-11 mt-4 space-y-4 border-l pl-3 sm:ml-12 sm:pl-4"
                     }
                 >
                     {repliesQuery.isPending ? (
@@ -319,14 +420,11 @@ function CommentItem({
                     ) : repliesQuery.isError ? (
                         <div className="space-y-2 text-sm text-muted-foreground">
                             <p>Gagal memuat balasan.</p>
-
                             <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                onClick={() =>
-                                    void repliesQuery.refetch()
-                                }
+                                onClick={() => void repliesQuery.refetch()}
                             >
                                 Coba lagi
                             </Button>
@@ -352,6 +450,10 @@ function CommentItem({
     );
 }
 
+// ---------------------------------------------------------------------------
+// PostComments
+// ---------------------------------------------------------------------------
+
 export function PostComments({
     postId,
     currentProfile,
@@ -369,7 +471,6 @@ export function PostComments({
         return (
             <div className="flex min-h-48 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
                 <MessageCircle className="size-7 text-muted-foreground" />
-
                 <div className="space-y-1">
                     <p className="text-sm font-semibold">
                         Komentar gagal dimuat
@@ -378,7 +479,6 @@ export function PostComments({
                         Periksa koneksi kamu lalu coba lagi.
                     </p>
                 </div>
-
                 <Button
                     type="button"
                     variant="outline"
@@ -399,12 +499,10 @@ export function PostComments({
                 <div className="mb-4 flex size-12 items-center justify-center rounded-full border bg-muted/30">
                     <MessageCircle className="size-6 text-muted-foreground" />
                 </div>
-
                 <div className="space-y-1">
                     <h3 className="text-sm font-semibold">
                         Belum ada komentar
                     </h3>
-
                     <p className="mx-auto max-w-xs text-sm leading-relaxed text-muted-foreground">
                         Jadilah yang pertama memberikan komentar pada
                         postingan ini.
@@ -428,7 +526,6 @@ export function PostComments({
     );
 }
 
-// Wrapper praktis jika query tidak perlu dibuat di parent.
 export function PostCommentsSection({
     postId,
     currentProfile,
@@ -447,8 +544,10 @@ export function PostCommentsSection({
     );
 }
 
-// Composer untuk komentar utama.
-// Composer ini bisa dipakai pada desktop maupun mobile.
+// ---------------------------------------------------------------------------
+// Bottom composer
+// ---------------------------------------------------------------------------
+
 export function PostCommentComposer({
     postId,
     currentProfile,
@@ -457,28 +556,59 @@ export function PostCommentComposer({
     currentProfile: DetailProfileDTO | null;
 }) {
     const [draft, setDraft] = useState("");
+    const inputRef = useRef<HTMLInputElement>(null);
+
     const createComment = useCreateComment(postId);
+    const {
+        replyTo,
+        cancelReply,
+        registerComposerFocus,
+        registerOnReplyStart,
+        registerOnReplyCancel,
+    } = useCommentReply();
+
+    useEffect(() => {
+        registerComposerFocus(() => {
+            inputRef.current?.focus();
+            const len = inputRef.current?.value.length ?? 0;
+            inputRef.current?.setSelectionRange(len, len);
+        });
+
+        registerOnReplyStart((username) => {
+            setDraft(`@${username} `);
+        });
+
+        registerOnReplyCancel(() => {
+            setDraft("");
+        });
+    }, [
+        registerComposerFocus,
+        registerOnReplyStart,
+        registerOnReplyCancel,
+    ]);
 
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         const value = draft.trim();
-
-        if (!value || createComment.isPending) {
-            return;
-        }
+        if (!value || createComment.isPending) return;
 
         createComment.mutate(
             {
                 comment: value,
-                replyTo: null,
+                replyTo: replyTo?.id ?? null,
             },
             {
                 onSuccess: () => {
                     setDraft("");
+                    cancelReply();
                 },
                 onError: () => {
-                    toast.error("Gagal mengirim komentar.");
+                    toast.error(
+                        replyTo
+                            ? "Gagal mengirim balasan."
+                            : "Gagal mengirim komentar."
+                    );
                 },
             }
         );
@@ -493,41 +623,73 @@ export function PostCommentComposer({
     }
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="flex min-w-0 items-center gap-2 px-4 py-2.5"
-        >
-            <Avatar className="size-8 shrink-0">
-                <AvatarImage
-                    src={resolvePublicMedia(currentProfile.avatar_url)}
-                    alt={currentProfile.display_name}
-                />
-                <AvatarFallback>
-                    {currentProfile.display_name
-                        .charAt(0)
-                        .toUpperCase()}
-                </AvatarFallback>
-            </Avatar>
+        <div className="border-t bg-background">
+            {replyTo && (
+                <div className="flex items-center justify-between gap-2 border-b px-4 py-2 text-xs text-muted-foreground">
+                    <span>
+                        Membalas{" "}
+                        <span className="font-semibold text-primary">
+                            @{replyTo.username}
+                        </span>
+                    </span>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-6 shrink-0 rounded-full"
+                        onClick={cancelReply}
+                        aria-label="Batalkan balasan"
+                    >
+                        <X className="size-3.5" />
+                    </Button>
+                </div>
+            )}
 
-            <Input
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder="Tambahkan komentar..."
-                aria-label="Tambahkan komentar"
-                autoComplete="off"
-                className="h-10 min-w-0 flex-1 rounded-none border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
-                disabled={createComment.isPending}
-            />
-
-            <Button
-                type="submit"
-                variant="ghost"
-                size="sm"
-                className="shrink-0 px-1 font-semibold text-primary hover:bg-transparent hover:text-primary"
-                disabled={!draft.trim() || createComment.isPending}
+            <form
+                onSubmit={handleSubmit}
+                className="flex min-w-0 items-center gap-2 px-4 py-2.5"
             >
-                {createComment.isPending ? "Mengirim..." : "Kirim"}
-            </Button>
-        </form>
+                <Avatar className="size-8 shrink-0">
+                    <AvatarImage
+                        src={resolvePublicMedia(currentProfile.avatar_url)}
+                        alt={currentProfile.display_name}
+                    />
+                    <AvatarFallback>
+                        {currentProfile.display_name
+                            .charAt(0)
+                            .toUpperCase()}
+                    </AvatarFallback>
+                </Avatar>
+
+                <Input
+                    ref={inputRef}
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    placeholder={
+                        replyTo
+                            ? `Balas @${replyTo.username}...`
+                            : "Tambahkan komentar..."
+                    }
+                    aria-label={
+                        replyTo
+                            ? `Balas komentar ${replyTo.username}`
+                            : "Tambahkan komentar"
+                    }
+                    autoComplete="off"
+                    className="h-10 min-w-0 flex-1 rounded-none border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
+                    disabled={createComment.isPending}
+                />
+
+                <Button
+                    type="submit"
+                    variant="ghost"
+                    size="sm"
+                    className="shrink-0 px-1 font-semibold text-primary hover:bg-transparent hover:text-primary"
+                    disabled={!draft.trim() || createComment.isPending}
+                >
+                    {createComment.isPending ? "Mengirim..." : "Kirim"}
+                </Button>
+            </form>
+        </div>
     );
 }

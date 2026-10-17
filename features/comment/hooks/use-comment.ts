@@ -10,6 +10,7 @@ import type {
     CommentResponse,
     CreateCommentDto,
 } from "@/lib/type/comment";
+import { PostsResponse } from "@/lib/type/posts";
 
 // Semua query komentar berada di bawah prefix ini.
 export const commentKeys = {
@@ -47,34 +48,59 @@ export function useCommentReplies(
     });
 }
 
-// Buat komentar utama atau balasan.
 export function useCreateComment(postId: string) {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: (dto: CreateCommentDto) =>
-            commentsApi.createComment(postId, dto),
+  return useMutation({
+    mutationFn: (dto: CreateCommentDto) =>
+      commentsApi.createComment(postId, dto),
 
-        onSuccess: async (_data, dto) => {
-            const invalidations = [
-                queryClient.invalidateQueries({
-                    queryKey: commentKeys.post(postId),
-                }),
-            ];
+    onSuccess: async (newComment, dto) => {
+      // Update comment_count di post detail
+      queryClient.setQueryData<PostsResponse>(
+        ["posts", postId],
+        (old) =>
+          old
+            ? { ...old, comment_count: old.comment_count + 1 }
+            : old
+      );
 
-            if (dto.parent_id) {
-                invalidations.push(
-                    queryClient.invalidateQueries({
-                        queryKey: commentKeys.repliesFor(
-                            dto.parent_id
-                        ),
-                    })
-                );
-            }
+      const invalidations: Promise<unknown>[] = [
+        queryClient.invalidateQueries({
+          queryKey: commentKeys.post(postId),
+        }),
+      ];
 
-            await Promise.all(invalidations);
-        },
-    });
+      if (dto.replyTo) {
+        const bumpReplyCount = (comments: CommentResponse[] | undefined) => {
+          if (!comments) return comments;
+          return comments.map((c) =>
+            c.id === dto.replyTo
+              ? { ...c, reply_count: (c.reply_count ?? 0) + 1 }
+              : c
+          );
+        };
+
+        queryClient.setQueryData<CommentResponse[]>(
+          commentKeys.post(postId),
+          bumpReplyCount
+        );
+
+        queryClient.setQueriesData<CommentResponse[]>(
+          { queryKey: commentKeys.replies() },
+          bumpReplyCount
+        );
+
+        invalidations.push(
+          queryClient.invalidateQueries({
+            queryKey: commentKeys.repliesFor(dto.replyTo),
+          })
+        );
+      }
+
+      await Promise.all(invalidations);
+    },
+  });
 }
 
 // Hapus komentar.
@@ -86,11 +112,22 @@ export function useDeleteComment(postId: string) {
             commentsApi.deleteComment(commentId),
 
         onSuccess: async () => {
+
+             queryClient.setQueryData<PostsResponse>(
+                ["posts", postId],
+                (old) =>
+                    old
+                        ? {
+                              ...old,
+                              comment_count: old.comment_count - 1,
+                          }
+                        : old,
+            );
+
             await queryClient.invalidateQueries({
                 queryKey: commentKeys.all,
             });
 
-            // Sekaligus memperbarui reply_count pada parent.
             await queryClient.invalidateQueries({
                 queryKey: commentKeys.post(postId),
             });
