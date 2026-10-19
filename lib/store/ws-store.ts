@@ -18,7 +18,6 @@ interface WsState {
   publish: (destination: string, body: unknown) => void;
 }
 
-// Singleton: di luar React, jadi nggak kebikin dobel walau re-render / strict mode
 let client: Client | null = null;
 const entries = new Set<SubEntry>();
 
