@@ -122,30 +122,42 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
             )}
         >
             {/* Header */}
-            <header className="flex items-center gap-3 px-3 py-2.5">
+            <header className="flex items-center gap-2 px-3 py-2.5 sm:gap-3">
                 <Link
                     href={`/u/${author.username}`}
-                    className="flex min-w-0 flex-1 items-center gap-3"
+                    className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3"
                 >
-                    <UserAvatar user={author} className="size-9 shrink-0" />
-                    <div className="min-w-0 leading-tight">
+                    <UserAvatar user={author} className="size-8 shrink-0 sm:size-9" />
+                    <div className="min-w-0 flex-1 leading-tight">
                         <p className="truncate text-sm font-semibold">
                             {author.username}
                         </p>
-                        <p
-                            className="truncate text-xs text-muted-foreground"
-                            suppressHydrationWarning
-                        >
-                            {author.display_name} &middot;{" "}
-                            {timeAgo(current.created_at)}
-                        </p>
+                        <div>
+                            <p
+                                className="truncate text-xs text-muted-foreground"
+                                suppressHydrationWarning
+                            >
+                                {timeAgo(current.created_at)}
+                            </p>
+                        </div>
                     </div>
                 </Link>
+
+                {currentUser?.id !== author.id && (
+                    <Button
+                        variant="default"
+                        size="sm"
+                        className="h-7 shrink-0 px-2.5 text-xs font-semibold sm:h-8 sm:px-3"
+                    // onClick={handleFollow}  // nanti hubungkan ke hook follow-mu
+                    >
+                        Ikuti
+                    </Button>
+                )}
 
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="shrink-0"
+                    className="size-8 shrink-0 sm:size-9"
                     aria-label="Opsi postingan"
                     onClick={() => setOptionsOpen(true)}
                 >
@@ -156,75 +168,89 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
             {/* Media (wajib pakai PostDetailMedia) */}
             <PostDetailMedia media={current.media} caption={current.caption} />
 
-            {/* Actions */}
-            <div className="flex items-center gap-1 px-2 pt-2">
-                {/* Like */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={liked ? "Batal suka" : "Suka"}
-                    aria-pressed={liked}
-                    onClick={handleToggleLike}
-                >
-                    <Heart
-                        className={cn(
-                            "size-6 transition-transform active:scale-90",
-                            liked && "fill-red-500 text-red-500",
-                        )}
-                    />
-                </Button>
-                <span className="text-sm font-semibold -ml-1 mr-3">
-                    {compactNumber.format(current.like_count)}
-                </span>
-
-                {/* Comment */}
-                {commentsEnabled && (
-                    <>
+            <div className="flex items-center px-3 pt-2">
+                <div className="flex min-w-0 items-center gap-3">
+                    {/* Like */}
+                    <div className="flex items-center gap-1">
                         <Button
                             variant="ghost"
                             size="icon"
-                            aria-label="Buka komentar"
-                            onClick={() => setCommentsOpen(true)}
+                            className="size-9 shrink-0 rounded-full"
+                            aria-label={liked ? "Batal suka" : "Suka"}
+                            aria-pressed={liked}
+                            onClick={handleToggleLike}
                         >
-                            <MessageCircle className="size-6" />
+                            <Heart
+                                className={cn(
+                                    "size-6 transition-transform active:scale-90",
+                                    liked && "fill-red-500 text-red-500",
+                                )}
+                            />
                         </Button>
-                        <span className="text-sm font-semibold -ml-1 mr-3">
-                            {compactNumber.format(current.comment_count)}
+
+                        <span className="text-sm font-semibold tabular-nums">
+                            {compactNumber.format(current.like_count)}
                         </span>
-                    </>
-                )}
+                    </div>
 
-                {/* Share (optional – Instagram style) */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Bagikan"
-                >
-                    <Send className="size-6" />
-                </Button>
-                <span className="text-sm font-semibold -ml-1">
-                    {compactNumber.format(current.share_count)}
-                </span>
+                    {/* Comment */}
+                    {commentsEnabled && (
+                        <div className="flex items-center gap-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-9 shrink-0 rounded-full"
+                                aria-label="Buka komentar"
+                                onClick={() => setCommentsOpen(true)}
+                            >
+                                <MessageCircle className="size-6" />
+                            </Button>
 
-                {/* Bookmark – pushed to the right */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="ml-auto"
-                    aria-label={bookmarked ? "Hapus dari simpanan" : "Simpan"}
-                    aria-pressed={bookmarked}
-                    onClick={handleToggleBookmark}
-                >
-                    <Bookmark
-                        className={cn(
-                            "size-6 transition-transform active:scale-90",
-                            bookmarked && "fill-foreground",
-                        )}
-                    />
-                </Button>
-                <span className="text-sm font-semibold -ml-1">
-                    {compactNumber.format(current.bookmark_count)}
-                </span>
+                            <span className="text-sm font-semibold tabular-nums">
+                                {compactNumber.format(current.comment_count)}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Share */}
+                    <div className="flex items-center gap-1">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-9 shrink-0 rounded-full"
+                            aria-label="Bagikan"
+                        >
+                            <Send className="size-6" />
+                        </Button>
+
+                        <span className="text-sm font-semibold tabular-nums">
+                            {compactNumber.format(current.share_count)}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Bookmark */}
+                <div className="ml-auto flex shrink-0 items-center gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-9 shrink-0 rounded-full"
+                        aria-label={bookmarked ? "Hapus dari simpanan" : "Simpan"}
+                        aria-pressed={bookmarked}
+                        onClick={handleToggleBookmark}
+                    >
+                        <Bookmark
+                            className={cn(
+                                "size-6 transition-transform active:scale-90",
+                                bookmarked && "fill-foreground",
+                            )}
+                        />
+                    </Button>
+
+                    <span className="text-sm font-semibold tabular-nums">
+                        {compactNumber.format(current.bookmark_count)}
+                    </span>
+                </div>
             </div>
 
             {/* Meta */}
