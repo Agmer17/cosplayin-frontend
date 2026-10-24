@@ -19,7 +19,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { updateProfile, type Gender } from "../api/settings.client";
 import { useAuthStore } from "@/lib/store/auth-store";
 import type { DetailProfileDTO } from "@/lib/type/profile";
-import { resolvePublicMedia } from "@/lib/image-url-resolver";
 import { toast } from "sonner";
 
 // ===== pakai component crop yang sudah ada =====
@@ -83,7 +82,7 @@ function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [cropAspect, setCropAspect] = useState<CropAspect>("avatar");
 
-    const bannerSrc = banner.url ?? resolvePublicMedia(profile.banner_url || "");
+    const bannerSrc = banner.url ?? (profile.banner_url || "");
 
     // Buka crop dialog setelah user pilih file
     function handleFileSelect(
@@ -189,7 +188,7 @@ function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
             <div className="flex items-center gap-4 rounded-lg border bg-card p-4 text-card-foreground">
                 <Avatar className="size-16">
                     <AvatarImage
-                        src={avatar.url ?? resolvePublicMedia(profile.avatar_url)}
+                        src={avatar.url ?? profile.avatar_url}
                         alt={profile.display_name}
                     />
                     <AvatarFallback>

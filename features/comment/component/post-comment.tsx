@@ -41,7 +41,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import type { CommentResponse } from "@/lib/type/comment";
 import type { DetailProfileDTO } from "@/lib/type/profile";
-import { resolvePublicMedia } from "@/lib/image-url-resolver";
 
 import {
     useCommentReplies,
@@ -168,7 +167,7 @@ function CommentAvatar({
     return (
         <Avatar className="size-8 shrink-0">
             <AvatarImage
-                src={resolvePublicMedia(profilePicture || "")}
+                src={profilePicture || ""}
                 alt={username}
             />
             <AvatarFallback>
@@ -651,7 +650,7 @@ export function PostCommentComposer({
             >
                 <Avatar className="size-8 shrink-0">
                     <AvatarImage
-                        src={resolvePublicMedia(currentProfile.avatar_url)}
+                        src={currentProfile.avatar_url}
                         alt={currentProfile.display_name}
                     />
                     <AvatarFallback>

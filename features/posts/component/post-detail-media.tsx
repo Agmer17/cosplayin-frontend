@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/carousel";
 
 import type { PostsMediaResponse } from "@/lib/type/posts";
-import { resolveMediaUrl } from "@/lib/image-url-resolver";
 import { useEffect, useState } from "react";
 import { FeedVideoPlayer } from "./posts-video-player";
 import { useInView } from "../hooks/use-in-view-posts";
@@ -73,7 +72,7 @@ export function PostDetailMedia({ media, caption }: PostDetailMediaProps) {
                             {item.media_type === "IMAGE" && (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
-                                    src={resolveMediaUrl(item.media_url)}
+                                    src={item.media_url}
                                     alt={caption || "Post image"}
                                     className="max-h-[80vh] max-w-full object-contain"
                                 />
@@ -81,7 +80,7 @@ export function PostDetailMedia({ media, caption }: PostDetailMediaProps) {
 
                             {item.media_type === "VIDEO" && (
                                 <FeedVideoPlayer
-                                    src={resolveMediaUrl(item.media_url)}
+                                    src={item.media_url}
                                     isActive={inView && index === selectedIndex}
                                     muted={!soundEnabled}
                                     onToggleMute={toggleSound}

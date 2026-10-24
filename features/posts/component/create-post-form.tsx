@@ -27,7 +27,6 @@ import { cn } from "@/lib/utils";
 import { PostsCommentStatus } from "@/lib/type/posts";
 import { postsApi } from "../api/posts.client";
 import { toast } from "sonner";
-import { resolvePublicMedia } from "@/lib/image-url-resolver";
 
 const COMMENT_STATUS_OPTIONS: { value: PostsCommentStatus; label: string }[] = [
     { value: " AVAIBLE ", label: "Izinkan semua komentar" },
@@ -467,7 +466,7 @@ export function CreatePostForm({
                         <div className="flex items-center gap-3 px-4 pt-4">
                             <Avatar className="h-8 w-8">
                                 <AvatarImage
-                                    src={resolvePublicMedia(author.avatarUrl || "")}
+                                    src={author.avatarUrl || ""}
                                     alt={author.username}
                                 />
                                 <AvatarFallback className="text-xs">

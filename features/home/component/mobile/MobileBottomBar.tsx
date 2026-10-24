@@ -8,7 +8,6 @@ import { cn } from "cn"
 import { DetailProfileDTO } from "@/lib/type/profile"
 import { isActive, navItems } from "../nav-item"
 import { BottomNavItem } from "./mobile-nav-item"
-import { resolvePublicMedia } from "@/lib/image-url-resolver"
 
 interface MobileBottomBarProps {
     profile: DetailProfileDTO | null
@@ -25,7 +24,7 @@ export default function MobileBottomBar({
         (item) => item.appearMobile && (!item.needLogin || authenticated)
     )
 
-    const avatarUrl = resolvePublicMedia(profile?.avatar_url || "")
+    const avatarUrl = profile?.avatar_url || ""
 
     const profileActive = isActive("/profile", activePage)
 

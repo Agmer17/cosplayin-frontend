@@ -15,7 +15,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
 import { usePostsBookmark, usePostsLike } from "../hooks/use-posts";
 import { DetailProfileDTO } from "@/lib/type/profile";
-import { resolvePublicMedia } from "@/lib/image-url-resolver";
 import { useState } from "react";
 import { PostOptionsDialog } from "./post-option-dialog";
 import { toast } from "sonner";
@@ -96,7 +95,7 @@ export function PostDetailSidebar({
                     >
                         <Avatar className="size-8 shrink-0">
                             <AvatarImage
-                                src={resolvePublicMedia(author.avatar_url)}
+                                src={author.avatar_url}
                                 alt={author.display_name}
                             />
                             <AvatarFallback>
@@ -147,7 +146,7 @@ export function PostDetailSidebar({
                     >
                         <Avatar className="size-8 shrink-0">
                             <AvatarImage
-                                src={resolvePublicMedia(author.avatar_url)}
+                                src={author.avatar_url}
                                 alt={author.display_name}
                             />
                             <AvatarFallback>
@@ -186,7 +185,6 @@ export function PostDetailSidebar({
                 </div>
             )}
 
-            {/* Desktop: wrap comments + composer so reply uses the bottom input */}
             {!isMobile ? (
                 <CommentReplyProvider>
                     <div className="min-h-0 flex-1 overflow-y-auto">
@@ -303,28 +301,6 @@ export function PostDetailSidebar({
                 </CommentReplyProvider>
             ) : (
                 <>
-                    {/* Mobile: caption only in the sidebar, comments go to the panel */}
-                    <div className="min-h-0 flex-1 overflow-y-auto">
-                        {post.caption && (
-                            <>
-                                <div className="flex items-start gap-3 px-4 py-4">
-                                    <p className="min-w-0 flex-1 wrap-break-word text-sm leading-5">
-                                        <Link
-                                            href={authorRedirect}
-                                            className="mr-1.5 font-semibold hover:text-muted-foreground"
-                                        >
-                                            {author.username}
-                                        </Link>
-                                        <span className="whitespace-pre-line">
-                                            {post.caption}
-                                        </span>
-                                    </p>
-                                </div>
-                                <Separator className="opacity-50" />
-                            </>
-                        )}
-                    </div>
-
                     <div className="shrink-0 border-t">
                         <div className="flex items-center justify-between px-3 pt-1.5">
                             <div className="flex items-center gap-1">
@@ -399,6 +375,27 @@ export function PostDetailSidebar({
                             <p className="text-xs text-muted-foreground">
                                 {dateFormatter.format(new Date(post.created_at))}
                             </p>
+                        </div>
+
+                        <div className="min-h-0 flex-1 overflow-y-auto">
+                            {post.caption && (
+                                <>
+                                    <div className="flex items-start gap-3 px-4 py-4">
+                                        <p className="min-w-0 flex-1 wrap-break-word text-sm leading-5">
+                                            <Link
+                                                href={authorRedirect}
+                                                className="mr-1.5 font-semibold hover:text-muted-foreground"
+                                            >
+                                                {author.username}
+                                            </Link>
+                                            <span className="whitespace-pre-line">
+                                                {post.caption}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <Separator className="opacity-50" />
+                                </>
+                            )}
                         </div>
                     </div>
 

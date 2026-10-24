@@ -23,8 +23,7 @@ export function PostDetail({ post, onDelete, profile }: PostDetailProps) {
 
     return (
         <main className="min-h-screen bg-background">
-            {/* sticky top bar – keep as is */}
-            <div className="sticky top-0 z-20 flex h-14 items-center border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/60 md:h-16">
+            <div className="sticky top-0 z-20 flex h-14 items-center border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 md:h-16">
                 <Button
                     onClick={() => router.back()}
                     variant="ghost"
@@ -37,13 +36,8 @@ export function PostDetail({ post, onDelete, profile }: PostDetailProps) {
                 </h1>
             </div>
 
-            <div className="mx-auto w-full max-w-6xl p-0 md:p-6">
-                <Card className="overflow-hidden rounded-none border-x-0 border-y md:rounded-xl md:border">
-                    {/* 
-                      KEY CHANGE:
-                      On desktop force a max height relative to viewport
-                      so the flex children can shrink and scroll internally.
-                    */}
+            <div className="mx-auto w-full max-w-6xl">
+                <Card className="p-0 md:mx-4 h-full overflow-hidden rounded-none border-x-0 border-y md:rounded-xl md:border">
                     <div className="flex flex-col md:flex-row md:h-[calc(100vh-8rem)]">
                         {isMobile && (
                             <div className="shrink-0 border-b">
@@ -65,11 +59,6 @@ export function PostDetail({ post, onDelete, profile }: PostDetailProps) {
 
                         <Separator className="md:hidden" />
 
-                        {/* 
-                          KEY CHANGE:
-                          Give the sidebar column an explicit height on desktop
-                          so PostDetailSidebar's md:h-full works.
-                        */}
                         <div className="min-h-0 min-w-0 md:w-95 md:shrink-0 md:h-full">
                             <PostDetailSidebar
                                 currentProfile={profile}

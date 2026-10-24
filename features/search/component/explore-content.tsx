@@ -31,11 +31,15 @@ export function ExploreContent() {
     );
 
     return (
-        <div className="flex flex-col gap-4">
-            <ExploreSearchInput
-                value={query}
-                onChange={setQuery}
-            />
+        <div className="flex flex-col gap-4 pt-4 md:pt-0">
+
+            <div className="px-4 md:p-0">
+                <ExploreSearchInput
+                    value={query}
+                    onChange={setQuery}
+                />
+
+            </div>
 
             <ExploreTabs
                 value={tab}

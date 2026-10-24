@@ -56,7 +56,7 @@ export default async function RootLayout({
           <AuthProvider user={profile}>
             <QueryProvider>
               <WebSocketProvider>
-                <Toaster richColors position={"top-center"} />
+                <Toaster richColors={true} position={"top-center"} closeButton={true} />
                 {children}
               </WebSocketProvider>
             </QueryProvider>

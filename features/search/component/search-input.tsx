@@ -17,11 +17,12 @@ export function ExploreSearchInput({
     onChange,
 }: Props) {
     return (
-        <InputGroup>
+        <InputGroup className="w-full">
             <InputGroupInput
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder="Cari sesuatu..."
+                className="w-full px-4"
             />
 
             <InputGroupAddon>

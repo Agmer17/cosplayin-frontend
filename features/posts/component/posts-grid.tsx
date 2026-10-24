@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/lib/responsive_util";
 import type { PostsResponse } from "@/lib/type/posts";
-import { resolveMediaUrl } from "@/lib/image-url-resolver";
 
 const compactNumber = new Intl.NumberFormat("id-ID", {
     notation: "compact",
@@ -42,7 +41,7 @@ function PostGridItem({
             {cover?.media_type === "IMAGE" && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                    src={resolveMediaUrl(cover.media_url)}
+                    src={cover.media_url}
                     alt={post.caption ?? ""}
                     loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover"
@@ -51,7 +50,7 @@ function PostGridItem({
 
             {isVideo && (
                 <video
-                    src={resolveMediaUrl(cover.media_url)}
+                    src={cover.media_url}
                     muted
                     playsInline
                     preload="metadata"

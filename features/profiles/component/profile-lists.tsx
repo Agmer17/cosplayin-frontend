@@ -4,7 +4,6 @@
 import Link from "next/link";
 
 import { DetailProfileDTO } from "@/lib/type/profile";
-import { resolvePublicMedia } from "@/lib/image-url-resolver";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type Props = {
@@ -55,7 +54,7 @@ export function ProfileList({
                 >
 
                     <Avatar>
-                        <AvatarImage src={resolvePublicMedia(user.avatar_url)} />
+                        <AvatarImage src={user.avatar_url} />
                         <AvatarFallback>
                             test
                         </AvatarFallback>

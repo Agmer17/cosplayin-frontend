@@ -10,6 +10,7 @@ async function request<T>(
 ): Promise<T> {
   const fetchFn = options.fetch ?? fetch;
   const headers: Record<string, string> = { ...options.headers };
+  headers[ "ngrok-skip-browser-warning"] = "true"
   let payload: BodyInit | undefined;
 
   if (body instanceof FormData) {

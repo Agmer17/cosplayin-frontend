@@ -14,7 +14,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-import { resolvePublicMedia } from "@/lib/image-url-resolver";
 import { cn } from "@/lib/utils";
 import type { DetailProfileDTO } from "@/lib/type/profile";
 import type { PostsResponse } from "@/lib/type/posts";
@@ -49,7 +48,7 @@ function UserAvatar({
     return (
         <Avatar className={className}>
             <AvatarImage
-                src={resolvePublicMedia(user.avatar_url)}
+                src={user.avatar_url}
                 alt={user.display_name}
             />
             <AvatarFallback>

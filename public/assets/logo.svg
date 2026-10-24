@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Colorful anime cosplay mask celebrating the cosplay community">
+  <defs>
+    <linearGradient id="maskGrad" x1="80" y1="180" x2="430" y2="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF4D8D"/>
+      <stop offset="48%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#39D9FF"/>
+    </linearGradient>
+    <linearGradient id="innerShine" x1="160" y1="210" x2="360" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="earGrad" x1="130" y1="130" x2="380" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF78B7"/>
+      <stop offset="100%" stop-color="#8A5BFF"/>
+    </linearGradient>
+    <linearGradient id="irisGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#72F4FF"/>
+      <stop offset="1" stop-color="#8060FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="118" fill="#FFF6FB"/>
+  <circle cx="256" cy="256" r="181" fill="none" stroke="#F2DDF4" stroke-width="2"/>
+  <circle cx="256" cy="256" r="193" fill="none" stroke="#F8E9F4" stroke-width="2" stroke-dasharray="3 12"/>
+
+  <g fill="#FFC94F">
+    <path d="M82 158l5 13 13 5-13 5-5 13-5-13-13-5 13-5z"/>
+    <path d="M421 175l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/>
+    <path d="M103 350l4 9 9 4-9 4-4 9-4-9-9-4 9-4z"/>
+    <path d="M408 359l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/>
+  </g>
+  <g fill="#FF72B6">
+    <path d="M56 252c-7-9-20 1-12 10l12 12 12-12c8-9-5-19-12-10z"/>
+    <path d="M454 275c-6-8-17 1-10 8l10 10 10-10c7-7-4-16-10-8z"/>
+  </g>
+
+  <g transform="rotate(-9 256 256)">
+    <path d="M113 212 123 133 194 189 318 189 389 133 399 212Z" fill="url(#earGrad)" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"/>
+    <path d="m139 185 6-34 35 31zM367 182l35-31 6 34z" fill="#FFB4D7" opacity=".95"/>
+
+    <path fill="url(#maskGrad)" fill-rule="evenodd" d="
+      M72 238
+      C72 198 108 182 152 190
+      C196 198 226 216 256 216
+      C286 216 316 198 360 190
+      C404 182 440 198 440 238
+      C440 296 400 338 348 338
+      C306 338 280 308 256 308
+      C232 308 206 338 164 338
+      C112 338 72 296 72 238Z
+      M128 278 Q178 224 236 258 Q188 302 128 278Z
+      M384 278 Q334 224 276 258 Q324 302 384 278Z"/>
+    <path fill="url(#innerShine)" fill-rule="evenodd" d="
+      M72 238
+      C72 198 108 182 152 190
+      C196 198 226 216 256 216
+      C286 216 316 198 360 190
+      C404 182 440 198 440 238
+      C440 296 400 338 348 338
+      C306 338 280 308 256 308
+      C232 308 206 338 164 338
+      C112 338 72 296 72 238Z
+      M128 278 Q178 224 236 258 Q188 302 128 278Z
+      M384 278 Q334 224 276 258 Q324 302 384 278Z"/>
+
+    <g>
+      <path d="M151 267q31-24 62-6-10 31-39 29-17-3-23-23z" fill="#211735"/>
+      <ellipse cx="184" cy="269" rx="11" ry="17" fill="url(#irisGrad)"/>
+      <ellipse cx="184" cy="269" rx="4" ry="12" fill="#211735"/>
+      <circle cx="180" cy="262" r="5" fill="#fff"/>
+      <circle cx="190" cy="274" r="2.5" fill="#fff"/>
+      <path d="M361 267q-31-24-62-6 10 31 39 29 17-3 23-23z" fill="#211735"/>
+      <ellipse cx="328" cy="269" rx="11" ry="17" fill="url(#irisGrad)"/>
+      <ellipse cx="328" cy="269" rx="4" ry="12" fill="#211735"/>
+      <circle cx="324" cy="262" r="5" fill="#fff"/>
+      <circle cx="334" cy="274" r="2.5" fill="#fff"/>
+      <path d="M153 248q27-20 53-5M359 248q-27-20-53-5" fill="none" stroke="#351A46" stroke-width="5" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

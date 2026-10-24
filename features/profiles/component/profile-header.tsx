@@ -13,7 +13,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import type { DetailProfileDTO } from "@/lib/type/profile";
 import { UserRole, UserStatus } from "@/lib/type/user";
-import { resolvePublicMedia } from "@/lib/image-url-resolver";
 
 type ProfileHeaderProps = {
     profile: DetailProfileDTO;
@@ -54,7 +53,7 @@ export function ProfileHeader({
                 {profile.banner_url ? (
                     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
                     <img
-                        src={resolvePublicMedia(profile.banner_url)}
+                        src={profile.banner_url}
                         className="h-full w-full object-cover"
                     />
                 ) : (
@@ -74,7 +73,7 @@ export function ProfileHeader({
                         "
                     >
                         <AvatarImage
-                            src={resolvePublicMedia(profile.avatar_url)}
+                            src={profile.avatar_url}
                             alt={profile.display_name}
                         />
 

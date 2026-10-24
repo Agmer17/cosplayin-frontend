@@ -10,7 +10,6 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { DetailProfileDTO } from "@/lib/type/profile"
-import { resolvePublicMedia } from "@/lib/image-url-resolver"
 
 interface SidebarProfileProps {
     profile: DetailProfileDTO | null
@@ -47,7 +46,7 @@ export function SidebarProfile({ profile, hovered }: SidebarProfileProps) {
         )
     }
 
-    const avatarUrl = resolvePublicMedia(profile.avatar_url)
+    const avatarUrl = profile.avatar_url
 
     return (
         <SidebarMenu className="w-full">
