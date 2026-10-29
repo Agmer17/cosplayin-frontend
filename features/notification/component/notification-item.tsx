@@ -20,10 +20,8 @@ type NotificationItemProps = {
 
 export function NotificationItem({
     data,
-    read = false,
     className,
 }: NotificationItemProps) {
-    const isUnread = data.read_at === null || read
     const shownActors = data.actors.slice(0, 3)
     const first = data.actors[0]
     const others = Math.max(data.actor_count - 1, 0)
@@ -40,7 +38,7 @@ export function NotificationItem({
             href={notificationHref(data)}
             className={cn(
                 "relative flex items-start gap-3 rounded-2xl px-4 py-3 text-foreground outline-none transition-colors",
-                "hover:bg-primary/70 focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+                "focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
                 className,
             )}
         >

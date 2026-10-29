@@ -1,7 +1,7 @@
-import "server-only";
+import "server-only"
 
-import { cookies } from "next/headers";
-import { ApiError, type BaseResponse, type RequestOptions, buildUrl } from "./api";
+import { cookies } from "next/headers"
+import { ApiError, type BaseResponse, type RequestOptions, buildUrl } from "./api"
 
 
 export type ServerRequestOptions = RequestOptions & {
@@ -11,11 +11,11 @@ export type ServerRequestOptions = RequestOptions & {
 
 
 async function cookieHeader(): Promise<string> {
-  const store = await cookies();
+  const store = await cookies()
   return store
     .getAll()
     .map(({ name, value }) => `${name}=${value}`)
-    .join("; ");
+    .join("; ")
 }
 
 async function request<T>(
@@ -24,19 +24,19 @@ async function request<T>(
   body?: unknown,
   options: ServerRequestOptions = {}
 ): Promise<T> {
-  const headers: Record<string, string> = { ...options.headers };
-  let payload: BodyInit | undefined;
+  const headers: Record<string, string> = { ...options.headers }
+  let payload: BodyInit | undefined
 
   if (body instanceof FormData) {
-    payload = body;
+    payload = body
   } else if (body !== undefined) {
-    headers["Content-Type"] = "application/json";
-    payload = JSON.stringify(body);
+    headers["Content-Type"] = "application/json"
+    payload = JSON.stringify(body)
   }
 
   if (!headers.Cookie && !headers.cookie) {
-    const cookie = await cookieHeader();
-    if (cookie) headers.Cookie = cookie;
+    const cookie = await cookieHeader()
+    if (cookie) headers.Cookie = cookie
   }
 
   const res = await fetch(buildUrl(path, options.params), {
@@ -46,31 +46,31 @@ async function request<T>(
     signal: options.signal,
     cache: options.cache ?? "default",
     next: options.next,
-  });
+  })
 
-  const contentType = res.headers.get("content-type") ?? "";
-  const isJson = contentType.includes("application/json");
+  const contentType = res.headers.get("content-type") ?? ""
+  const isJson = contentType.includes("application/json")
   const responseData = isJson
     ? await res.json().catch(() => null)
-    : ((await res.text()) as unknown);
+    : ((await res.text()) as unknown)
 
   if (!res.ok) {
-    let errorMessage = res.statusText;
+    let errorMessage = res.statusText
 
     if (isJson && responseData && typeof responseData === "object") {
-      const errObj = responseData as Record<string, unknown>;
+      const errObj = responseData as Record<string, unknown>
 
       if ("error" in errObj) {
         errorMessage =
           typeof errObj.error === "string"
             ? errObj.error
-            : JSON.stringify(errObj.error);
+            : JSON.stringify(errObj.error)
       } else if ("message" in errObj) {
-        errorMessage = String(errObj.message);
+        errorMessage = String(errObj.message)
       }
     }
 
-    throw new ApiError(res.status, errorMessage, responseData);
+    throw new ApiError(res.status, errorMessage, responseData)
   }
 
   if (
@@ -79,10 +79,10 @@ async function request<T>(
     typeof responseData === "object" &&
     "data" in responseData
   ) {
-    return (responseData as BaseResponse<T>).data;
+    return (responseData as BaseResponse<T>).data
   }
 
-  return responseData as T;
+  return responseData as T
 }
 
 export const serverApi = {
@@ -96,4 +96,4 @@ export const serverApi = {
     request<T>("PATCH", path, body, options),
   delete: <T>(path: string, options?: ServerRequestOptions) =>
     request<T>("DELETE", path, undefined, options),
-};
+}

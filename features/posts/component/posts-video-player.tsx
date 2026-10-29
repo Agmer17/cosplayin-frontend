@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import { Loader2, Play, Volume2, VolumeX } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState } from "react"
+import { Loader2, Play, Volume2, VolumeX } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 type FeedVideoPlayerProps = {
     src: string;
@@ -21,46 +21,46 @@ export function FeedVideoPlayer({
     poster,
     className,
 }: FeedVideoPlayerProps) {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isBuffering, setIsBuffering] = useState(false);
-    const [hasError, setHasError] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null)
+    const [isPlaying, setIsPlaying] = useState(false)
+    const [isBuffering, setIsBuffering] = useState(false)
+    const [hasError, setHasError] = useState(false)
 
-    const [loaded, setLoaded] = useState(isActive);
-    if (isActive && !loaded) setLoaded(true);
-
-    useEffect(() => {
-        if (videoRef.current) videoRef.current.muted = muted;
-    }, [muted]);
+    const [loaded, setLoaded] = useState(isActive)
+    if (isActive && !loaded) setLoaded(true)
 
     useEffect(() => {
-        const video = videoRef.current;
-        if (!video || !loaded) return;
+        if (videoRef.current) videoRef.current.muted = muted
+    }, [muted])
+
+    useEffect(() => {
+        const video = videoRef.current
+        if (!video || !loaded) return
 
         if (isActive) {
-            video.play().catch(() => { });
+            video.play().catch(() => { })
         } else {
-            video.pause();
-            video.currentTime = 0;
+            video.pause()
+            video.currentTime = 0
         }
-    }, [isActive, loaded]);
+    }, [isActive, loaded])
 
     useEffect(() => {
-        const video = videoRef.current;
+        const video = videoRef.current
         return () => {
-            if (!video) return;
-            video.pause();
-            video.removeAttribute("src");
-            video.load();
-        };
-    }, []);
+            if (!video) return
+            video.pause()
+            video.removeAttribute("src")
+            video.load()
+        }
+    }, [])
 
     const togglePlay = () => {
-        const video = videoRef.current;
-        if (!video) return;
-        if (video.paused) video.play().catch(() => { });
-        else video.pause();
-    };
+        const video = videoRef.current
+        if (!video) return
+        if (video.paused) video.play().catch(() => { })
+        else video.pause()
+    }
 
     return (
         <div
@@ -118,8 +118,8 @@ export function FeedVideoPlayer({
             <button
                 type="button"
                 onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleMute();
+                    e.stopPropagation()
+                    onToggleMute()
                 }}
                 aria-label={muted ? "Unmute video" : "Mute video"}
                 className="absolute bottom-3 right-3 flex size-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
@@ -127,5 +127,5 @@ export function FeedVideoPlayer({
                 {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
             </button>
         </div>
-    );
+    )
 }

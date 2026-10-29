@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import { useState, type ReactNode } from "react";
-import type { UseQueryResult } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import type { DetailProfileDTO } from "@/lib/type/profile";
-import type { PostsResponse } from "@/lib/type/posts";
-import { ProfileHeader, ProfileHeaderSkeleton } from "./profile-header";
-import { ProfileTabs } from "./profile-tabs";
-import { PostsGrid } from "../../posts/component/posts-grid";
+import { useState, type ReactNode } from "react"
+import type { UseQueryResult } from "@tanstack/react-query"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import type { DetailProfileDTO } from "@/lib/type/profile"
+import type { PostsResponse } from "@/lib/type/posts"
+import { ProfileHeader, ProfileHeaderSkeleton } from "./profile-header"
+import { ProfileTabs } from "./profile-tabs"
+import { PostsGrid } from "../../posts/component/posts-grid"
 
 type ProfileTab = "posts" | "likes";
 
@@ -28,7 +28,7 @@ export function ProfileView({
     showLikesTab = true,
 }: ProfileViewProps) {
     const [activeTab, setActiveTab] =
-        useState<ProfileTab>("posts");
+        useState<ProfileTab>("posts")
 
     return (
         <main className="mx-auto w-full max-w-4xl">
@@ -87,5 +87,5 @@ export function ProfileView({
                 </div>
             )}
         </main>
-    );
+    )
 }

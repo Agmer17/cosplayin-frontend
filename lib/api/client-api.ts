@@ -1,4 +1,4 @@
-import { ApiError, BaseResponse, RequestOptions, buildUrl } from "./api";
+import { ApiError, BaseResponse, RequestOptions, buildUrl } from "./api"
 
 
 
@@ -8,16 +8,16 @@ async function request<T>(
   body?: unknown,
   options: RequestOptions = {}
 ): Promise<T> {
-  const fetchFn = options.fetch ?? fetch;
-  const headers: Record<string, string> = { ...options.headers };
+  const fetchFn = options.fetch ?? fetch
+  const headers: Record<string, string> = { ...options.headers }
   headers[ "ngrok-skip-browser-warning"] = "true"
-  let payload: BodyInit | undefined;
+  let payload: BodyInit | undefined
 
   if (body instanceof FormData) {
-    payload = body;
+    payload = body
   } else if (body !== undefined) {
-    headers["Content-Type"] = "application/json";
-    payload = JSON.stringify(body);
+    headers["Content-Type"] = "application/json"
+    payload = JSON.stringify(body)
   }
 
   const res = await fetchFn(buildUrl(path, options.params), {
@@ -26,27 +26,27 @@ async function request<T>(
     body: payload,
     signal: options.signal,
     credentials: "include",
-  });
+  })
 
-  const contentType = res.headers.get("content-type") ?? "";
-  const isJson = contentType.includes("application/json");
+  const contentType = res.headers.get("content-type") ?? ""
+  const isJson = contentType.includes("application/json")
   const responseData = isJson
     ? await res.json().catch(() => null)
-    : ((await res.text()) as unknown);
+    : ((await res.text()) as unknown)
 
   if (!res.ok) {
-    let errorMessage = res.statusText;
+    let errorMessage = res.statusText
 
     if (isJson && responseData && typeof responseData === "object") {
-      const errObj = responseData as Record<string, unknown>;
+      const errObj = responseData as Record<string, unknown>
 
       if ("error" in errObj) {
         errorMessage =
           typeof errObj.error === "string"
             ? errObj.error
-            : JSON.stringify(errObj.error);
+            : JSON.stringify(errObj.error)
       } else if ("message" in errObj) {
-        errorMessage = String(errObj.message);
+        errorMessage = String(errObj.message)
       }
     }
 
@@ -55,7 +55,7 @@ async function request<T>(
     responseData &&
     typeof responseData === "object"
         ? (responseData as Record<string, unknown>)
-        : undefined;
+        : undefined
 
 throw new ApiError(
     res.status,
@@ -64,7 +64,7 @@ throw new ApiError(
         ? errorResponse.timestamp
         : new Date().toISOString(),
     errorResponse?.error,
-);
+)
   }
 
   if (
@@ -73,10 +73,10 @@ throw new ApiError(
     typeof responseData === "object" &&
     "data" in responseData
   ) {
-    return (responseData as BaseResponse<T>).data;
+    return (responseData as BaseResponse<T>).data
   }
 
-  return responseData as T;
+  return responseData as T
 }
 
 export const clientApi = {
@@ -90,4 +90,4 @@ export const clientApi = {
     request<T>("PATCH", path, body, options),
   delete: <T>(path: string, options?: RequestOptions) =>
     request<T>("DELETE", path, undefined, options),
-};
+}

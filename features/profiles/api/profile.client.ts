@@ -1,6 +1,6 @@
-import type { RequestOptions } from "@/lib/api/api";
-import { clientApi } from "@/lib/api/client-api";
-import type { DetailProfileDTO } from "@/lib/type/profile";
+import type { RequestOptions } from "@/lib/api/api"
+import { clientApi } from "@/lib/api/client-api"
+import type { DetailProfileDTO } from "@/lib/type/profile"
 
 export const profileClientApi = {
     getMyProfile: (options?: RequestOptions) =>
@@ -25,4 +25,4 @@ export const profileClientApi = {
             }
         })
 
-};
+}

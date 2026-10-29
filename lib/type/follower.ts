@@ -1,4 +1,4 @@
-import { SimpleProfileDTO } from "./profile";
+import { SimpleProfileDTO } from "./profile"
 
 export type FollowStatus = "NONE" | "FOLLOWING" | "PENDING";
 

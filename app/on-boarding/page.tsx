@@ -1,4 +1,4 @@
-import { OnboardingForm } from "@/features/profiles/component/on-boarding-form";
+import { OnboardingForm } from "@/features/profiles/component/on-boarding-form"
 
 export default function SubmitOnBoardingPage() {
     return (
@@ -7,5 +7,5 @@ export default function SubmitOnBoardingPage() {
                 <OnboardingForm />
             </div>
         </main>
-    );
+    )
 }

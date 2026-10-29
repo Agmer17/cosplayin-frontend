@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
     Bookmark,
@@ -6,27 +6,27 @@ import {
     MessageCircle,
     MoreHorizontal,
     Send,
-} from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import type { PostsResponse } from "@/lib/type/posts";
+} from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import type { PostsResponse } from "@/lib/type/posts"
 import { useIsMobile } from "@/lib/responsive_util"
-import Link from "next/link";
-import { usePostsBookmark, usePostsLike } from "../hooks/use-posts";
-import { DetailProfileDTO } from "@/lib/type/profile";
-import { useState } from "react";
-import { PostOptionsDialog } from "./post-option-dialog";
-import { toast } from "sonner";
-import { CommentsPanel } from "./comments-pannel";
+import Link from "next/link"
+import { usePostsBookmark, usePostsLike } from "../hooks/use-posts"
+import { DetailProfileDTO } from "@/lib/type/profile"
+import { useState } from "react"
+import { PostOptionsDialog } from "./post-option-dialog"
+import { toast } from "sonner"
+import { CommentsPanel } from "./comments-pannel"
 
 import {
     CommentReplyProvider,
     PostCommentComposer,
     PostCommentsSection,
-} from "@/features/comment/component/post-comment";
-import { compactNumber } from "@/lib/number-formatter-utils";
-import { PostsLikeDetails } from "./posts-like-details";
+} from "@/features/comment/component/post-comment"
+import { compactNumber } from "@/lib/number-formatter-utils"
+import { PostsLikeDetails } from "./posts-like-details"
 
 type PostDetailSidebarProps = {
     post: PostsResponse;
@@ -40,7 +40,7 @@ type PostDetailSidebarProps = {
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
     dateStyle: "medium",
     timeStyle: "short",
-});
+})
 
 export function PostDetailSidebar({
     post,
@@ -49,44 +49,44 @@ export function PostDetailSidebar({
     currentProfile,
     onDeletePosts,
 }: PostDetailSidebarProps) {
-    const author = post.author;
-    const isMobile = useIsMobile();
+    const author = post.author
+    const isMobile = useIsMobile()
 
     const [likeDetails, setLikeDetails] = useState(false)
 
-    const [open, setOpen] = useState(false);
-    const [commentOpen, setCommentOpen] = useState(false);
+    const [open, setOpen] = useState(false)
+    const [commentOpen, setCommentOpen] = useState(false)
 
-    let authorRedirect = "/u/" + author.username;
+    let authorRedirect = "/u/" + author.username
     if (author.id === currentProfile?.id) {
-        authorRedirect = "/my-profile";
+        authorRedirect = "/my-profile"
     }
 
     const { liked, loading, toggleLike } = usePostsLike(
         post.posts_id,
         post.liked
-    );
+    )
 
     const { bookmarked, toggleBookmark } = usePostsBookmark(
         post.posts_id,
         post.bookmarked
-    );
+    )
 
     const handleToggleLike = () => {
         if (!currentProfile) {
-            toast.error("kamu harus login sebelum like posts!");
+            toast.error("kamu harus login sebelum like posts!")
         }
-        toggleLike();
-    };
+        toggleLike()
+    }
 
     const handleToggleBookmark = () => {
         if (!currentProfile) {
             toast.error(
                 "kamu harus login sebelum like masukin postingan ke bookmark!"
-            );
+            )
         }
-        toggleBookmark();
-    };
+        toggleBookmark()
+    }
 
     if (headerOnly) {
         return (
@@ -136,7 +136,7 @@ export function PostDetailSidebar({
                     />
                 </div>
             </div>
-        );
+        )
     }
 
     return (
@@ -246,7 +246,7 @@ export function PostDetailSidebar({
                                     aria-label="Komentar"
                                     onClick={() => {
                                         if (isMobile) {
-                                            setCommentOpen(true);
+                                            setCommentOpen(true)
                                         }
                                     }}
                                 >
@@ -417,5 +417,5 @@ export function PostDetailSidebar({
                 onOpenChange={(b) => setLikeDetails(b)}
             />
         </div>
-    );
+    )
 }

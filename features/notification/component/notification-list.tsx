@@ -124,7 +124,7 @@ export function NotificationList() {
                         <div>
                             {filteredNotifications.map((notification, index) => (
                                 <div key={notification.id}>
-                                    <NotificationItem data={notification} read={notification.read_at != null} className="bg-accent" />
+                                    <NotificationItem data={notification} read={notification.read_at != null} className="bg-background hover:bg-primary/20" />
                                     {index < filteredNotifications.length - 1 && <Separator />}
                                 </div>
                             ))}

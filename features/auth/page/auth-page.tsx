@@ -1,14 +1,14 @@
-"use client";
-import Image from "next/image";
-import { AuthCard } from "@/features/auth/component/auth-card";
-import { MobileAuthDrawer } from "@/features/auth/component/mobile-auth-drawer";
-import { useIsMobile } from "@/lib/responsive_util";
+"use client"
+import Image from "next/image"
+import { AuthCard } from "@/features/auth/component/auth-card"
+import { MobileAuthDrawer } from "@/features/auth/component/mobile-auth-drawer"
+import { useIsMobile } from "@/lib/responsive_util"
 
-const AUTH_ARTWORK_SRC = "/assets/image/artwork.jpg";
+const AUTH_ARTWORK_SRC = "/assets/image/artwork.jpg"
 
 export function AuthPage() {
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile()
   return (
     <main className="h-dvh w-full overflow-hidden bg-background">
       <div className="hidden h-full md:flex">
@@ -40,5 +40,5 @@ export function AuthPage() {
         <MobileAuthDrawer open={isMobile} />
       </div>
     </main>
-  );
+  )
 }

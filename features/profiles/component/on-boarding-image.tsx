@@ -1,13 +1,13 @@
 // components/onboarding-image-upload.tsx  (atau image-upload-with-crop.tsx)
-"use client";
+"use client"
 
-import { useRef, useState } from "react";
-import { Camera, ImageIcon, X } from "lucide-react";
-import { toast } from "sonner";
+import { useRef, useState } from "react"
+import { Camera, ImageIcon, X } from "lucide-react"
+import { toast } from "sonner"
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ImageCropDialog, type CropAspect } from "@/components/image/ImageCropping";
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { ImageCropDialog, type CropAspect } from "@/components/image/ImageCropping"
 
 interface ImageUploadWithCropProps {
     id: string;
@@ -25,7 +25,7 @@ interface ImageUploadWithCropProps {
     maxSizeMB?: number;
 }
 
-const ACCEPTED = "image/jpeg,image/png,image/webp,image/gif";
+const ACCEPTED = "image/jpeg,image/png,image/webp,image/gif"
 
 export function ImageUploadWithCrop({
     id,
@@ -38,10 +38,10 @@ export function ImageUploadWithCrop({
     label,
     maxSizeMB = 5,
 }: ImageUploadWithCropProps) {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const [pendingFile, setPendingFile] = useState<File | null>(null);
-    const [cropOpen, setCropOpen] = useState(false);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null)
+    const [pendingFile, setPendingFile] = useState<File | null>(null)
+    const [cropOpen, setCropOpen] = useState(false)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
     // Sync preview dari value
     // (bisa diganti useEffect jika value berubah dari luar)
@@ -50,49 +50,49 @@ export function ImageUploadWithCrop({
     }
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+        const file = e.target.files?.[0]
+        if (!file) return
 
         // Reset input supaya bisa pilih file yang sama lagi
-        e.target.value = "";
+        e.target.value = ""
 
         if (!file.type.startsWith("image/")) {
-            toast.error("File harus berupa gambar.");
-            return;
+            toast.error("File harus berupa gambar.")
+            return
         }
 
         if (file.size > maxSizeMB * 1024 * 1024) {
-            toast.error(`Ukuran gambar maksimal ${maxSizeMB}MB.`);
-            return;
+            toast.error(`Ukuran gambar maksimal ${maxSizeMB}MB.`)
+            return
         }
 
-        setPendingFile(file);
-        setCropOpen(true);
-    };
+        setPendingFile(file)
+        setCropOpen(true)
+    }
 
     const handleCropComplete = (cropped: File) => {
         // Revoke previous preview
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        if (previewUrl) URL.revokeObjectURL(previewUrl)
 
-        const url = URL.createObjectURL(cropped);
-        setPreviewUrl(url);
-        onChange(cropped);
-        setPendingFile(null);
-    };
+        const url = URL.createObjectURL(cropped)
+        setPreviewUrl(url)
+        onChange(cropped)
+        setPendingFile(null)
+    }
 
     const handleRemove = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-        onChange(null);
-    };
+        e.stopPropagation()
+        if (previewUrl) URL.revokeObjectURL(previewUrl)
+        setPreviewUrl(null)
+        onChange(null)
+    }
 
     const openFilePicker = () => {
-        inputRef.current?.click();
-    };
+        inputRef.current?.click()
+    }
 
     // Jika value sudah ada tapi preview belum (misal setelah re-render)
-    const displayUrl = previewUrl ?? (value ? URL.createObjectURL(value) : null);
+    const displayUrl = previewUrl ?? (value ? URL.createObjectURL(value) : null)
 
     return (
         <>
@@ -170,5 +170,5 @@ export function ImageUploadWithCrop({
                 onCropComplete={handleCropComplete}
             />
         </>
-    );
+    )
 }

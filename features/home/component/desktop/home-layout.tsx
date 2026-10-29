@@ -16,7 +16,7 @@ export default function Layout({ children }: HomeLayoutProps) {
     const path = usePathname()
     const isMobile = useIsMobile()
     const profile = useAuthStore((state) => state.user)
-    const pathname = usePathname();
+    const pathname = usePathname()
 
     return (
         <div className="flex min-h-screen w-full">

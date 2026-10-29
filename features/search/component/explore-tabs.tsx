@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { Grid3x3, Users } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { Grid3x3, Users } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
 
 export type ExploreTab = "posts" | "users";
 
@@ -20,9 +20,9 @@ export function ExploreTabs({ value, onChange }: Props) {
         "data-[state=active]:border-foreground data-[state=active]:bg-transparent",
         "data-[state=active]:text-foreground data-[state=active]:shadow-none",
         "dark:data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent"
-    );
+    )
 
-    const iconClass = "!size-5 sm:!size-6";
+    const iconClass = "!size-5 sm:!size-6"
     return (
         <Tabs value={value} onValueChange={(v) => onChange(v as ExploreTab)}>
             <TabsList className="h-auto w-full rounded-none border-b bg-transparent p-0">
@@ -41,5 +41,5 @@ export function ExploreTabs({ value, onChange }: Props) {
                 </TabsTrigger>
             </TabsList>
         </Tabs>
-    );
+    )
 }

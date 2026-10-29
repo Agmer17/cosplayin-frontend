@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { postsApi } from "../api/posts.client";
-import type { PostsResponse } from "@/lib/type/posts";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { postsApi } from "../api/posts.client"
+import type { PostsResponse } from "@/lib/type/posts"
+import { useQuery } from "@tanstack/react-query"
 
 
 export function usePostsLike(postId: string, liked: boolean) {
-    const queryClient = useQueryClient();
-    const queryKey = ["posts", postId];
+    const queryClient = useQueryClient()
+    const queryKey = ["posts", postId]
 
     const mutation = useMutation({
         mutationFn: (nextLiked: boolean) =>
@@ -15,10 +15,10 @@ export function usePostsLike(postId: string, liked: boolean) {
                 : postsApi.client.unlikePosts(postId),
 
         onMutate: async (nextLiked) => {
-            await queryClient.cancelQueries({ queryKey });
+            await queryClient.cancelQueries({ queryKey })
 
              const previous =
-                queryClient.getQueryData<PostsResponse>(queryKey);
+                queryClient.getQueryData<PostsResponse>(queryKey)
                 
             queryClient.setQueryData<PostsResponse>(queryKey, (old) =>
                 old
@@ -31,30 +31,30 @@ export function usePostsLike(postId: string, liked: boolean) {
                         ),
                     }
                     : old,
-            );
+            )
 
            
 
-            return { previous };
+            return { previous }
         },
 
         // rollback kalau gagal
         onError: (_err, _nextLiked, ctx) => {
-            if (ctx?.previous) queryClient.setQueryData(queryKey, ctx.previous);
+            if (ctx?.previous) queryClient.setQueryData(queryKey, ctx.previous)
         },
 
         // sinkronkan dengan server setelah selesai
         onSettled: () => {
             // queryClient.invalidateQueries({ queryKey });
-            queryClient.invalidateQueries({ queryKey: ["my-likes"] });
+            queryClient.invalidateQueries({ queryKey: ["my-likes"] })
         },
-    });
+    })
 
     return {
         liked,
         loading: mutation.isPending,
         toggleLike: () => mutation.mutate(!liked),
-    }; 
+    } 
 }
 
 
@@ -63,12 +63,12 @@ export function usePostsLikeDetails(postId: string) {
         queryKey: ["posts", postId, "likes"] as const,
         queryFn: () => postsApi.client.getPostLikeDetails(postId),
         enabled: !!postId,
-    });
+    })
 }
 
 export function usePostsBookmark(postId: string, bookmarked: boolean) {
-    const queryClient = useQueryClient();
-    const queryKey = ["posts", postId];
+    const queryClient = useQueryClient()
+    const queryKey = ["posts", postId]
 
     const mutation = useMutation({
         mutationFn: (nextBookmarked: boolean) =>
@@ -77,11 +77,11 @@ export function usePostsBookmark(postId: string, bookmarked: boolean) {
                 : postsApi.client.deleteBookmark(postId),
 
         onMutate: async (nextBookmarked) => {
-            await queryClient.cancelQueries({ queryKey });
+            await queryClient.cancelQueries({ queryKey })
 
             
             const previous =
-                queryClient.getQueryData<PostsResponse>(queryKey);
+                queryClient.getQueryData<PostsResponse>(queryKey)
 
             queryClient.setQueryData<PostsResponse>(queryKey, (old) =>
                 old
@@ -95,29 +95,29 @@ export function usePostsBookmark(postId: string, bookmarked: boolean) {
                         ),
                     }
                     : old,
-            );
+            )
 
             
 
-            return { previous };
+            return { previous }
         },
 
         // rollback kalau gagal
         onError: (_err, _nextBookmarked, ctx) => {
-            if (ctx?.previous) queryClient.setQueryData(queryKey, ctx.previous);
+            if (ctx?.previous) queryClient.setQueryData(queryKey, ctx.previous)
         },
 
         onSettled: () => {
             // queryClient.invalidateQueries({ queryKey });
             queryClient.invalidateQueries({queryKey : ["my-bookmark"]})
         },
-    });
+    })
 
     return {
         bookmarked,
         loading: mutation.isPending,
         toggleBookmark: () => mutation.mutate(!bookmarked),
-    };
+    }
 }
 
 
@@ -126,12 +126,12 @@ export function usePostById(postId: string) {
         queryKey: ["posts", postId],
         queryFn: () => postsApi.client.getById(postId),
         enabled: !!postId,
-    });
+    })
 }
 
 
 export function usePostDelete(username : string | undefined) {
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
     return useMutation({
         mutationFn: (postId: string) =>
             postsApi.client.deletePosts(postId),
@@ -139,13 +139,13 @@ export function usePostDelete(username : string | undefined) {
         onSuccess: (_, postId) => {
             queryClient.removeQueries({
                 queryKey: ["posts", postId],
-            });
+            })
 
-             queryClient.invalidateQueries({ queryKey: ["profiles", "posts", username] });
+             queryClient.invalidateQueries({ queryKey: ["profiles", "posts", username] })
 
 
         },
-    });
+    })
 }
 
 export function useMyBookmark() {

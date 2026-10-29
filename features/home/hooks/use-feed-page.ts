@@ -1,6 +1,6 @@
-import { postsApi } from "@/features/posts/api/posts.client";
-import { useQuery } from "@tanstack/react-query";
-import { feedQueryKey } from "./keys";
+import { postsApi } from "@/features/posts/api/posts.client"
+import { useQuery } from "@tanstack/react-query"
+import { feedQueryKey } from "./keys"
 
 export function useFeedData() {
     

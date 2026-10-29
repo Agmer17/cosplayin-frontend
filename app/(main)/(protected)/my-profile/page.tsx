@@ -1,25 +1,25 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { ProfileView } from "@/features/profiles/component/ProfileView";
+import { Button } from "@/components/ui/button"
+import { ProfileView } from "@/features/profiles/component/ProfileView"
 import {
     useMyLikes,
     useMyProfile,
     useUserPosts,
-} from "@/features/profiles/hooks/use-profile-query";
-import { Settings } from "lucide-react";
-import { useRouter } from "next/navigation";
+} from "@/features/profiles/hooks/use-profile-query"
+import { Settings } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function MyProfilePage() {
-    const profileQuery = useMyProfile();
+    const profileQuery = useMyProfile()
 
     const router = useRouter()
 
     const postsQuery = useUserPosts(
         profileQuery.data?.username
-    );
+    )
 
-    const likedPostsQuery = useMyLikes();
+    const likedPostsQuery = useMyLikes()
 
     return (
         <ProfileView
@@ -36,5 +36,5 @@ export default function MyProfilePage() {
                 </Button>
             }
         />
-    );
+    )
 }

@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useIsMobile } from "@/lib/responsive_util";
+import { useIsMobile } from "@/lib/responsive_util"
 
 import {
     Drawer,
@@ -8,7 +8,7 @@ import {
     DrawerDescription,
     DrawerHeader,
     DrawerTitle,
-} from "@/components/ui/drawer";
+} from "@/components/ui/drawer"
 
 import {
     Sheet,
@@ -16,15 +16,15 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
-} from "@/components/ui/sheet";
+} from "@/components/ui/sheet"
 
-import type { DetailProfileDTO } from "@/lib/type/profile";
+import type { DetailProfileDTO } from "@/lib/type/profile"
 
 import {
     CommentReplyProvider,
     PostCommentComposer,
     PostCommentsSection,
-} from "@/features/comment/component/post-comment";
+} from "@/features/comment/component/post-comment"
 
 type CommentsPanelProps = {
     postId: string;
@@ -58,7 +58,7 @@ function CommentsBody({
                 </div>
             </div>
         </CommentReplyProvider>
-    );
+    )
 }
 
 export function CommentsPanel({
@@ -67,7 +67,7 @@ export function CommentsPanel({
     onOpenChange,
     currentUser,
 }: CommentsPanelProps) {
-    const isMobile = useIsMobile();
+    const isMobile = useIsMobile()
 
     if (!isMobile) {
         return (
@@ -86,7 +86,7 @@ export function CommentsPanel({
                     <CommentsBody postId={postId} currentUser={currentUser} />
                 </SheetContent>
             </Sheet>
-        );
+        )
     }
 
     return (
@@ -102,5 +102,5 @@ export function CommentsPanel({
                 <CommentsBody postId={postId} currentUser={currentUser} />
             </DrawerContent>
         </Drawer>
-    );
+    )
 }

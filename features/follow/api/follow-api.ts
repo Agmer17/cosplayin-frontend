@@ -1,5 +1,5 @@
-import { clientApi } from "@/lib/api/client-api";
-import { FollowerResponse } from "@/lib/type/follower";
+import { clientApi } from "@/lib/api/client-api"
+import { FollowerResponse } from "@/lib/type/follower"
 
 export const FollowClientApi = {
 

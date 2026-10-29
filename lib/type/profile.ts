@@ -1,5 +1,5 @@
-import { FollowStatus } from "./follower";
-import { UserStatus, UserRole } from "./user";
+import { FollowStatus } from "./follower"
+import { UserStatus, UserRole } from "./user"
 
 export type ProfilesVisibility = "PUBLIC" | "PRIVATE"
 

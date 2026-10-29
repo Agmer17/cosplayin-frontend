@@ -5,9 +5,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { OAuthButtons } from "@/features/auth/component/oauth-buttons";
-import AuthUserAvatar from "./auth-avatar-user";
+} from "@/components/ui/card"
+import { OAuthButtons } from "@/features/auth/component/oauth-buttons"
+import AuthUserAvatar from "./auth-avatar-user"
 
 export function AuthCard() {
   return (
@@ -57,5 +57,5 @@ export function AuthCard() {
         </p>
       </CardFooter>
     </Card>
-  );
+  )
 }

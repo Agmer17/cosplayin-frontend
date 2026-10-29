@@ -1,5 +1,5 @@
-import { DetailProfileDTO } from "./profile";
-import { UserRole } from "./user";
+import { DetailProfileDTO } from "./profile"
+import { UserRole } from "./user"
 
 export type SupportedFileType = "VIDEO" | "AUDIO" | "IMAGE" | "DOCUMENT" | "ANY"
 export type PostsStatus = "VISIBLE" | "HIDDEN"

@@ -1,33 +1,32 @@
-"use client";
+"use client"
 
-import { memo, useState } from "react";
-import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { memo, useState } from "react"
+import Link from "next/link"
+import { useQuery } from "@tanstack/react-query"
 import {
     Bookmark,
     Heart,
     MessageCircle,
     MoreHorizontal,
     Send,
-} from "lucide-react";
+} from "lucide-react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 
-import { cn } from "@/lib/utils";
-import type { DetailProfileDTO } from "@/lib/type/profile";
-import type { PostsResponse } from "@/lib/type/posts";
+import { cn } from "@/lib/utils"
+import type { DetailProfileDTO } from "@/lib/type/profile"
+import type { PostsResponse } from "@/lib/type/posts"
 
 // TODO: sesuaikan path import di bawah dengan struktur project kamu
-import { PostDetailMedia } from "./post-detail-media";
-import { postsApi } from "@/features/posts/api/posts.client";
-import { usePostsBookmark, usePostsLike } from "../hooks/use-posts";
-import { PostOptionsDialog } from "./post-option-dialog";
-import { toast } from "sonner";
-import { CommentsPanel } from "./comments-pannel";
-import { compactNumber, timeAgo } from "@/lib/number-formatter-utils";
-import { PostsLikeDetails } from "./posts-like-details";
-import { useToggleFollow } from "@/features/follow/hooks/use-follow";
+import { PostDetailMedia } from "./post-detail-media"
+import { postsApi } from "@/features/posts/api/posts.client"
+import { usePostsBookmark, usePostsLike } from "../hooks/use-posts"
+import { PostOptionsDialog } from "./post-option-dialog"
+import { toast } from "sonner"
+import { CommentsPanel } from "./comments-pannel"
+import { compactNumber, timeAgo } from "@/lib/number-formatter-utils"
+import { PostsLikeDetails } from "./posts-like-details"
 
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                    */
@@ -41,7 +40,7 @@ function UserAvatar({
     className?: string;
 }) {
     if (!user) {
-        return <></>;
+        return <></>
     }
 
     return (
@@ -51,7 +50,7 @@ function UserAvatar({
                 {user.display_name.slice(0, 1).toUpperCase()}
             </AvatarFallback>
         </Avatar>
-    );
+    )
 }
 
 /* -------------------------------------------------------------------------- */
@@ -71,7 +70,7 @@ function PostCardBase({
     onReport,
     className,
 }: PostCardProps) {
-    const postId = post.posts_id;
+    const postId = post.posts_id
     const { data } = useQuery({
         queryKey: ["posts", postId],
         queryFn: () => postsApi.client.getById(postId),
@@ -79,43 +78,43 @@ function PostCardBase({
         staleTime: Infinity,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
-    });
-    const current = data ?? post;
+    })
+    const current = data ?? post
 
-    const { liked, toggleLike } = usePostsLike(postId, current.liked);
+    const { liked, toggleLike } = usePostsLike(postId, current.liked)
 
     const { bookmarked, toggleBookmark } = usePostsBookmark(
         postId,
         current.bookmarked,
-    );
+    )
 
     const handleToggleLike = () => {
         if (!currentUser) {
-            toast.error("kamu harus login sebelum like posts!");
+            toast.error("kamu harus login sebelum like posts!")
         }
 
-        toggleLike();
-    };
+        toggleLike()
+    }
     const handleToggleBookmark = () => {
         if (!currentUser) {
             toast.error(
                 "kamu harus login sebelum like masukin postingan ke bookmark!",
-            );
+            )
         }
 
-        toggleBookmark();
-    };
+        toggleBookmark()
+    }
 
-    const [optionsOpen, setOptionsOpen] = useState(false);
-    const [commentsOpen, setCommentsOpen] = useState(false);
-    const [expanded, setExpanded] = useState(false);
+    const [optionsOpen, setOptionsOpen] = useState(false)
+    const [commentsOpen, setCommentsOpen] = useState(false)
+    const [expanded, setExpanded] = useState(false)
 
-    const { author } = current;
-    const commentsEnabled = current.comment_availability !== "NOT_AVAIBLE";
+    const { author } = current
+    const commentsEnabled = current.comment_availability !== "NOT_AVAIBLE"
     const isLongCaption =
-        current.caption.length > 110 || current.caption.includes("\n");
+        current.caption.length > 110 || current.caption.includes("\n")
 
-    const [likeDetails, setLikeDetails] = useState(false);
+    const [likeDetails, setLikeDetails] = useState(false)
 
     return (
         <article
@@ -313,8 +312,8 @@ function PostCardBase({
                 onOpenChange={(b) => setLikeDetails(b)}
             />
         </article>
-    );
+    )
 }
 
 // memo supaya kartu lama tidak re-render saat halaman baru di-append
-export const PostCard = memo(PostCardBase);
+export const PostCard = memo(PostCardBase)

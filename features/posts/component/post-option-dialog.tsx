@@ -4,19 +4,19 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
     Drawer,
     DrawerContent,
     DrawerDescription,
     DrawerHeader,
     DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Copy, Flag, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { useIsMobile } from "@/lib/responsive_util";
+} from "@/components/ui/drawer"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { Copy, Flag, Trash2 } from "lucide-react"
+import { toast } from "sonner"
+import { useIsMobile } from "@/lib/responsive_util"
 
 type PostOptionsDialogProps = {
     open: boolean;
@@ -35,33 +35,33 @@ export function PostOptionsDialog({
     onDelete,
     isAuthor,
 }: PostOptionsDialogProps) {
-    const isMobile = useIsMobile();
+    const isMobile = useIsMobile()
 
-    const close = () => onOpenChange(false);
+    const close = () => onOpenChange(false)
 
     const copyLink = async () => {
         try {
-            const url = `${window.location.origin}/posts/${postId}`;
-            await navigator.clipboard.writeText(url);
-            toast.success("Tautan disalin");
+            const url = `${window.location.origin}/posts/${postId}`
+            await navigator.clipboard.writeText(url)
+            toast.success("Tautan disalin")
         } catch {
-            toast.error("Gagal menyalin tautan");
+            toast.error("Gagal menyalin tautan")
         } finally {
-            close();
+            close()
         }
-    };
+    }
 
     const report = () => {
-        close();
-        if (onReport) onReport(postId);
-        else toast.info("Fitur laporan belum tersedia");
-    };
+        close()
+        if (onReport) onReport(postId)
+        else toast.info("Fitur laporan belum tersedia")
+    }
 
     const deletePost = () => {
-        close();
-        if (onDelete) onDelete(postId);
-        else toast.info("Fitur hapus belum tersedia");
-    };
+        close()
+        if (onDelete) onDelete(postId)
+        else toast.info("Fitur hapus belum tersedia")
+    }
 
     const content = (
         <div className="flex flex-col py-1">
@@ -109,7 +109,7 @@ export function PostOptionsDialog({
                 Batal
             </Button>
         </div>
-    );
+    )
 
     if (isMobile) {
         return (
@@ -124,7 +124,7 @@ export function PostOptionsDialog({
                     {content}
                 </DrawerContent>
             </Drawer>
-        );
+        )
     }
 
     return (
@@ -139,5 +139,5 @@ export function PostOptionsDialog({
                 {content}
             </DialogContent>
         </Dialog>
-    );
+    )
 }

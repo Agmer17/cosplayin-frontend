@@ -1,8 +1,8 @@
 
 "use client"
-import { CreatePostForm } from "@/features/posts/component/create-post-form";
-import { useAuthStore } from "@/lib/store/auth-store";
-import { useRouter } from "next/navigation";
+import { CreatePostForm } from "@/features/posts/component/create-post-form"
+import { useAuthStore } from "@/lib/store/auth-store"
+import { useRouter } from "next/navigation"
 
 export default function CreatePostPage() {
     const user = useAuthStore((state) => state.user)
@@ -22,5 +22,5 @@ export default function CreatePostPage() {
                 }
             />
         </main>
-    );
+    )
 }

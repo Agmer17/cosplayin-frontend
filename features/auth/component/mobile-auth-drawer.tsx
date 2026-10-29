@@ -1,5 +1,5 @@
 
-'use-client';
+'use-client'
 
 import {
   Drawer,
@@ -8,9 +8,9 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { OAuthButtons } from "@/features/auth/component/oauth-buttons";
-import AuthUserAvatar from "./auth-avatar-user";
+} from "@/components/ui/drawer"
+import { OAuthButtons } from "@/features/auth/component/oauth-buttons"
+import AuthUserAvatar from "./auth-avatar-user"
 
 interface MobileAuthDrawerProps {
   open: boolean;
@@ -59,5 +59,5 @@ export function MobileAuthDrawer({ open }: MobileAuthDrawerProps) {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
     Carousel,
@@ -7,12 +7,12 @@ import {
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-} from "@/components/ui/carousel";
+} from "@/components/ui/carousel"
 
-import type { PostsMediaResponse } from "@/lib/type/posts";
-import { useEffect, useState } from "react";
-import { FeedVideoPlayer } from "./posts-video-player";
-import { useInView } from "../hooks/use-in-view-posts";
+import type { PostsMediaResponse } from "@/lib/type/posts"
+import { useEffect, useState } from "react"
+import { FeedVideoPlayer } from "./posts-video-player"
+import { useInView } from "../hooks/use-in-view-posts"
 
 type PostDetailMediaProps = {
     media: PostsMediaResponse[];
@@ -22,33 +22,33 @@ type PostDetailMediaProps = {
 export function PostDetailMedia({ media, caption }: PostDetailMediaProps) {
     const sortedMedia = [...media].sort(
         (a, b) => a.display_order - b.display_order,
-    );
+    )
 
-    const [api, setApi] = useState<CarouselApi>();
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [api, setApi] = useState<CarouselApi>()
+    const [selectedIndex, setSelectedIndex] = useState(0)
 
-    const [containerRef, inView] = useInView<HTMLDivElement>(0.6);
+    const [containerRef, inView] = useInView<HTMLDivElement>(0.6)
 
-    const [soundEnabled, setSoundEnabled] = useState(true);
+    const [soundEnabled, setSoundEnabled] = useState(true)
 
     const toggleSound = () => {
-        setSoundEnabled((prev) => !prev);
-    };
+        setSoundEnabled((prev) => !prev)
+    }
 
     useEffect(() => {
-        if (!api) return;
+        if (!api) return
 
-        const onSelect = () => setSelectedIndex(api.selectedScrollSnap());
+        const onSelect = () => setSelectedIndex(api.selectedScrollSnap())
 
-        onSelect();
-        api.on("select", onSelect);
-        api.on("reInit", onSelect);
+        onSelect()
+        api.on("select", onSelect)
+        api.on("reInit", onSelect)
 
         return () => {
-            api.off("select", onSelect);
-            api.off("reInit", onSelect);
-        };
-    }, [api]);
+            api.off("select", onSelect)
+            api.off("reInit", onSelect)
+        }
+    }, [api])
 
     if (sortedMedia.length === 0) {
         return (
@@ -57,7 +57,7 @@ export function PostDetailMedia({ media, caption }: PostDetailMediaProps) {
                     Media tidak tersedia.
                 </p>
             </div>
-        );
+        )
     }
 
     return (
@@ -108,5 +108,5 @@ export function PostDetailMedia({ media, caption }: PostDetailMediaProps) {
             </Carousel>
 
         </div>
-    );
+    )
 }

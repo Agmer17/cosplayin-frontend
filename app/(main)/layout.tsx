@@ -1,9 +1,9 @@
 
-import { DetailProfileDTO } from "@/lib/type/profile";
+import { DetailProfileDTO } from "@/lib/type/profile"
 import HomeLayout from "@/features/home/component/desktop/home-layout"
-import { profileServerApi } from "@/features/profiles/api/profile.server";
-import { redirect } from "next/navigation";
-import WebSocketListener from "@/components/websocket/Websocket-listener";
+import { profileServerApi } from "@/features/profiles/api/profile.server"
+import { redirect } from "next/navigation"
+import WebSocketListener from "@/components/websocket/Websocket-listener"
 
 export default async function MainLayout({
     children,

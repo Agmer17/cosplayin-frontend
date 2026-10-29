@@ -28,7 +28,7 @@ export function SettingsSidebar({ className }: { className?: string }) {
     const pathname = usePathname()
     const clearUser = useAuthStore((state) => state.clearUser)
     const router = useRouter()
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
 
 
     const handleLogout = () => {

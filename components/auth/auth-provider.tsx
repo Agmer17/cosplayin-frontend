@@ -1,11 +1,11 @@
 // src/components/auth/auth-provider.tsx
 
-"use client";
+"use client"
 
-import { useEffect } from "react";
+import { useEffect } from "react"
 
-import { useAuthStore } from "@/lib/store/auth-store";
-import { DetailProfileDTO } from "@/lib/type/profile";
+import { useAuthStore } from "@/lib/store/auth-store"
+import { DetailProfileDTO } from "@/lib/type/profile"
 
 interface AuthProviderProps {
     user: DetailProfileDTO | null;
@@ -16,11 +16,11 @@ export function AuthProvider({
     user,
     children,
 }: AuthProviderProps) {
-    const setUser = useAuthStore((state) => state.setUser);
+    const setUser = useAuthStore((state) => state.setUser)
 
     useEffect(() => {
-        setUser(user);
-    }, [user, setUser]);
+        setUser(user)
+    }, [user, setUser])
 
-    return children;
+    return children
 }

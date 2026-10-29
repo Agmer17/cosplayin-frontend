@@ -1,10 +1,10 @@
 // components/image-crop-dialog.tsx
-"use client";
+"use client"
 
-import { useCallback, useState } from "react";
-import Cropper, { Area, Point } from "react-easy-crop";
-import { Loader2, ZoomIn, ZoomOut } from "lucide-react";
-import { toast } from "sonner";
+import { useCallback, useState } from "react"
+import Cropper, { Area, Point } from "react-easy-crop"
+import { Loader2, ZoomIn, ZoomOut } from "lucide-react"
+import { toast } from "sonner"
 
 import {
     Dialog,
@@ -13,9 +13,9 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
 
 export type CropAspect = "avatar" | "banner";
 
@@ -34,7 +34,7 @@ interface ImageCropDialogProps {
 const ASPECT_MAP: Record<CropAspect, number> = {
     avatar: 1,
     banner: 3 / 1,
-};
+}
 
 /**
  * Membuat canvas dari area crop, lalu convert ke File.
@@ -46,20 +46,20 @@ async function getCroppedImg(
     fileName: string,
     mimeType: string = "image/jpeg",
 ): Promise<File> {
-    const image = await createImage(imageSrc);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    const image = await createImage(imageSrc)
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
 
     if (!ctx) {
-        throw new Error("Canvas context tidak tersedia");
+        throw new Error("Canvas context tidak tersedia")
     }
 
     // Output size — avatar 400x400, banner 1500x500 (rasio 3:1)
-    const outputWidth = pixelCrop.width > 1500 ? 1500 : Math.round(pixelCrop.width);
-    const outputHeight = Math.round(outputWidth * (pixelCrop.height / pixelCrop.width));
+    const outputWidth = pixelCrop.width > 1500 ? 1500 : Math.round(pixelCrop.width)
+    const outputHeight = Math.round(outputWidth * (pixelCrop.height / pixelCrop.width))
 
-    canvas.width = outputWidth;
-    canvas.height = outputHeight;
+    canvas.width = outputWidth
+    canvas.height = outputHeight
 
     ctx.drawImage(
         image,
@@ -71,35 +71,35 @@ async function getCroppedImg(
         0,
         outputWidth,
         outputHeight,
-    );
+    )
 
     return new Promise((resolve, reject) => {
         canvas.toBlob(
             (blob) => {
                 if (!blob) {
-                    reject(new Error("Gagal membuat blob"));
-                    return;
+                    reject(new Error("Gagal membuat blob"))
+                    return
                 }
                 const file = new File([blob], fileName, {
                     type: mimeType,
                     lastModified: Date.now(),
-                });
-                resolve(file);
+                })
+                resolve(file)
             },
             mimeType,
             0.92,
-        );
-    });
+        )
+    })
 }
 
 function createImage(url: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.addEventListener("load", () => resolve(img));
-        img.addEventListener("error", (e) => reject(e));
-        img.setAttribute("crossOrigin", "anonymous");
-        img.src = url;
-    });
+        const img = new Image()
+        img.addEventListener("load", () => resolve(img))
+        img.addEventListener("error", (e) => reject(e))
+        img.setAttribute("crossOrigin", "anonymous")
+        img.src = url
+    })
 }
 
 export function ImageCropDialog({
@@ -111,65 +111,65 @@ export function ImageCropDialog({
     title,
     description,
 }: ImageCropDialogProps) {
-    const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-    const [isProcessing, setIsProcessing] = useState(false);
+    const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
+    const [zoom, setZoom] = useState(1)
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
+    const [isProcessing, setIsProcessing] = useState(false)
 
-    const imageUrl = imageFile ? URL.createObjectURL(imageFile) : null;
+    const imageUrl = imageFile ? URL.createObjectURL(imageFile) : null
 
     const onCropChange = useCallback((location: Point) => {
-        setCrop(location);
-    }, []);
+        setCrop(location)
+    }, [])
 
     const onZoomChange = useCallback((value: number) => {
-        setZoom(value);
-    }, []);
+        setZoom(value)
+    }, [])
 
     const onCropCompleteInternal = useCallback(
         (_: Area, croppedAreaPixels: Area) => {
-            setCroppedAreaPixels(croppedAreaPixels);
+            setCroppedAreaPixels(croppedAreaPixels)
         },
         [],
-    );
+    )
 
     const handleConfirm = async () => {
-        if (!imageUrl || !croppedAreaPixels || !imageFile) return;
+        if (!imageUrl || !croppedAreaPixels || !imageFile) return
 
-        setIsProcessing(true);
+        setIsProcessing(true)
         try {
-            const extension = imageFile.name.split(".").pop() || "jpg";
-            const baseName = imageFile.name.replace(/\.[^/.]+$/, "");
+            const extension = imageFile.name.split(".").pop() || "jpg"
+            const baseName = imageFile.name.replace(/\.[^/.]+$/, "")
             const croppedFile = await getCroppedImg(
                 imageUrl,
                 croppedAreaPixels,
                 `${baseName}-cropped.${extension}`,
                 imageFile.type.startsWith("image/") ? imageFile.type : "image/jpeg",
-            );
+            )
 
-            onCropComplete(croppedFile);
-            onOpenChange(false);
+            onCropComplete(croppedFile)
+            onOpenChange(false)
 
             // Reset state
-            setCrop({ x: 0, y: 0 });
-            setZoom(1);
-            setCroppedAreaPixels(null);
+            setCrop({ x: 0, y: 0 })
+            setZoom(1)
+            setCroppedAreaPixels(null)
         } catch (err) {
-            console.error(err);
-            toast.error("Gagal memotong gambar. Coba lagi.");
+            console.error(err)
+            toast.error("Gagal memotong gambar. Coba lagi.")
         } finally {
-            setIsProcessing(false);
+            setIsProcessing(false)
         }
-    };
+    }
 
     const handleClose = (nextOpen: boolean) => {
         if (!nextOpen) {
-            setCrop({ x: 0, y: 0 });
-            setZoom(1);
-            setCroppedAreaPixels(null);
+            setCrop({ x: 0, y: 0 })
+            setZoom(1)
+            setCroppedAreaPixels(null)
         }
-        onOpenChange(nextOpen);
-    };
+        onOpenChange(nextOpen)
+    }
 
     // Cleanup object URL
     // (biasanya dipanggil saat unmount / file berubah)
@@ -250,5 +250,5 @@ export function ImageCropDialog({
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    );
+    )
 }

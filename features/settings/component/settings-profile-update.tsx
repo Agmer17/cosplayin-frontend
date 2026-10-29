@@ -1,127 +1,127 @@
 // components/settings/update-profile-form.tsx
-"use client";
+"use client"
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { Camera, Check } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useEffect, useRef, useState, useCallback } from "react"
+import { Camera, Check } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { updateProfile, type Gender } from "../api/settings.client";
-import { useAuthStore } from "@/lib/store/auth-store";
-import type { DetailProfileDTO } from "@/lib/type/profile";
-import { toast } from "sonner";
+} from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
+import { updateProfile, type Gender } from "../api/settings.client"
+import { useAuthStore } from "@/lib/store/auth-store"
+import type { DetailProfileDTO } from "@/lib/type/profile"
+import { toast } from "sonner"
 
 // ===== pakai component crop yang sudah ada =====
-import { ImageCropDialog, type CropAspect } from "@/components/image/ImageCropping";
+import { ImageCropDialog, type CropAspect } from "@/components/image/ImageCropping"
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
 
 function useImagePicker() {
-    const [picked, setPicked] = useState<{ file: File; url: string } | null>(null);
-    const urlRef = useRef<string | null>(null);
+    const [picked, setPicked] = useState<{ file: File; url: string } | null>(null)
+    const urlRef = useRef<string | null>(null)
 
     const set = useCallback((file: File | null) => {
-        if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-        urlRef.current = file ? URL.createObjectURL(file) : null;
-        setPicked(file && urlRef.current ? { file, url: urlRef.current } : null);
-    }, []);
+        if (urlRef.current) URL.revokeObjectURL(urlRef.current)
+        urlRef.current = file ? URL.createObjectURL(file) : null
+        setPicked(file && urlRef.current ? { file, url: urlRef.current } : null)
+    }, [])
 
     useEffect(() => {
         return () => {
-            if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-        };
-    }, []);
+            if (urlRef.current) URL.revokeObjectURL(urlRef.current)
+        }
+    }, [])
 
-    return { file: picked?.file ?? null, url: picked?.url ?? null, set };
+    return { file: picked?.file ?? null, url: picked?.url ?? null, set }
 }
 
 function validateImage(file: File): string | null {
-    if (!file.type.startsWith("image/")) return "File harus berupa gambar.";
-    if (file.size > MAX_IMAGE_SIZE) return "Ukuran gambar maksimal 5MB.";
-    return null;
+    if (!file.type.startsWith("image/")) return "File harus berupa gambar."
+    if (file.size > MAX_IMAGE_SIZE) return "Ukuran gambar maksimal 5MB."
+    return null
 }
 
 export function UpdateProfileForm() {
-    const profile = useAuthStore((state) => state.user);
+    const profile = useAuthStore((state) => state.user)
     if (!profile) {
-        return <p className="text-sm text-muted-foreground">Memuat profil...</p>;
+        return <p className="text-sm text-muted-foreground">Memuat profil...</p>
     }
-    return <ProfileForm profile={profile} />;
+    return <ProfileForm profile={profile} />
 }
 
 function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
-    const setUser = useAuthStore((state) => state.setUser);
+    const setUser = useAuthStore((state) => state.setUser)
 
-    const [displayName, setDisplayName] = useState(profile.display_name);
-    const [bio, setBio] = useState(profile.bio ?? "");
-    const [isPrivate, setIsPrivate] = useState(profile.visibility === "PRIVATE");
-    const [gender, setGender] = useState<Gender | "">("");
-    const [submitting, setSubmitting] = useState(false);
+    const [displayName, setDisplayName] = useState(profile.display_name)
+    const [bio, setBio] = useState(profile.bio ?? "")
+    const [isPrivate, setIsPrivate] = useState(profile.visibility === "PRIVATE")
+    const [gender, setGender] = useState<Gender | "">("")
+    const [submitting, setSubmitting] = useState(false)
     const [status, setStatus] = useState<{
         type: "success" | "error";
         message: string;
-    } | null>(null);
+    } | null>(null)
 
-    const avatarInputRef = useRef<HTMLInputElement>(null);
-    const bannerInputRef = useRef<HTMLInputElement>(null);
-    const avatar = useImagePicker();
-    const banner = useImagePicker();
+    const avatarInputRef = useRef<HTMLInputElement>(null)
+    const bannerInputRef = useRef<HTMLInputElement>(null)
+    const avatar = useImagePicker()
+    const banner = useImagePicker()
 
     // ===== state untuk crop dialog =====
-    const [cropOpen, setCropOpen] = useState(false);
-    const [pendingFile, setPendingFile] = useState<File | null>(null);
-    const [cropAspect, setCropAspect] = useState<CropAspect>("avatar");
+    const [cropOpen, setCropOpen] = useState(false)
+    const [pendingFile, setPendingFile] = useState<File | null>(null)
+    const [cropAspect, setCropAspect] = useState<CropAspect>("avatar")
 
-    const bannerSrc = banner.url ?? (profile.banner_url || "");
+    const bannerSrc = banner.url ?? (profile.banner_url || "")
 
     // Buka crop dialog setelah user pilih file
     function handleFileSelect(
         file: File | undefined,
         aspect: CropAspect,
     ) {
-        if (!file) return;
+        if (!file) return
 
-        const error = validateImage(file);
+        const error = validateImage(file)
         if (error) {
-            setStatus({ type: "error", message: error });
-            return;
+            setStatus({ type: "error", message: error })
+            return
         }
 
-        setStatus(null);
-        setPendingFile(file);
-        setCropAspect(aspect);
-        setCropOpen(true);
+        setStatus(null)
+        setPendingFile(file)
+        setCropAspect(aspect)
+        setCropOpen(true)
     }
 
     // Setelah crop selesai
     function handleCropComplete(croppedFile: File) {
         if (cropAspect === "avatar") {
-            avatar.set(croppedFile);
+            avatar.set(croppedFile)
         } else {
-            banner.set(croppedFile);
+            banner.set(croppedFile)
         }
-        setPendingFile(null);
+        setPendingFile(null)
     }
 
     async function onSubmit(e: React.FormEvent) {
-        e.preventDefault();
+        e.preventDefault()
         if (!displayName.trim()) {
-            setStatus({ type: "error", message: "Display name tidak boleh kosong." });
-            return;
+            setStatus({ type: "error", message: "Display name tidak boleh kosong." })
+            return
         }
 
-        setSubmitting(true);
-        setStatus(null);
+        setSubmitting(true)
+        setStatus(null)
         try {
             const updated = await updateProfile(
                 {
@@ -133,20 +133,20 @@ function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
                     banner: banner.file,
                 },
                 profile,
-            );
-            setUser(updated);
-            avatar.set(null);
-            banner.set(null);
-            setStatus({ type: "success", message: "Profil berhasil diperbarui." });
-            toast.success("Berhasil memperbarui profil!");
+            )
+            setUser(updated)
+            avatar.set(null)
+            banner.set(null)
+            setStatus({ type: "success", message: "Profil berhasil diperbarui." })
+            toast.success("Berhasil memperbarui profil!")
         } catch (err) {
             setStatus({
                 type: "error",
                 message:
                     err instanceof Error ? err.message : "Gagal memperbarui profil.",
-            });
+            })
         } finally {
-            setSubmitting(false);
+            setSubmitting(false)
         }
     }
 
@@ -178,8 +178,8 @@ function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     className="hidden"
                     onChange={(e) => {
-                        handleFileSelect(e.target.files?.[0], "banner");
-                        e.target.value = ""; // biar bisa pilih file yang sama lagi
+                        handleFileSelect(e.target.files?.[0], "banner")
+                        e.target.value = "" // biar bisa pilih file yang sama lagi
                     }}
                 />
             </div>
@@ -215,8 +215,8 @@ function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     className="hidden"
                     onChange={(e) => {
-                        handleFileSelect(e.target.files?.[0], "avatar");
-                        e.target.value = "";
+                        handleFileSelect(e.target.files?.[0], "avatar")
+                        e.target.value = ""
                     }}
                 />
             </div>
@@ -302,5 +302,5 @@ function ProfileForm({ profile }: { profile: DetailProfileDTO }) {
                 {submitting ? "Menyimpan..." : "Simpan perubahan"}
             </Button>
         </form>
-    );
+    )
 }

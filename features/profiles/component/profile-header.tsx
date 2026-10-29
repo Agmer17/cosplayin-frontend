@@ -1,18 +1,18 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from "react"
 
-import { Lock } from "lucide-react";
+import { Lock } from "lucide-react"
 
 import {
     Avatar,
     AvatarFallback,
     AvatarImage,
-} from "@/components/ui/avatar";
+} from "@/components/ui/avatar"
 
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 
-import type { DetailProfileDTO } from "@/lib/type/profile";
-import { UserRole, UserStatus } from "@/lib/type/user";
+import type { DetailProfileDTO } from "@/lib/type/profile"
+import { UserRole, UserStatus } from "@/lib/type/user"
 
 type ProfileHeaderProps = {
     profile: DetailProfileDTO;
@@ -23,28 +23,28 @@ const ROLE_LABEL: Partial<Record<UserRole, string>> = {
     [UserRole.ADMIN]: "Admin",
     [UserRole.MODERATOR]: "Moderator",
     [UserRole.VENDOR]: "Vendor",
-};
+}
 
 const RESTRICTED_STATUS_LABEL: Partial<Record<UserStatus, string>> = {
     [UserStatus.BANNED]: "Banned",
     [UserStatus.SUSPENDED]: "Suspended",
-};
+}
 
 const compactNumber = new Intl.NumberFormat("id-ID", {
     notation: "compact",
     maximumFractionDigits: 1,
-});
+})
 
 function formatCount(value: number | null | undefined) {
-    return compactNumber.format(value ?? 0);
+    return compactNumber.format(value ?? 0)
 }
 
 export function ProfileHeader({
     profile,
     actions,
 }: ProfileHeaderProps) {
-    const roleLabel = ROLE_LABEL[profile.user_role];
-    const restrictedLabel = RESTRICTED_STATUS_LABEL[profile.user_status];
+    const roleLabel = ROLE_LABEL[profile.user_role]
+    const restrictedLabel = RESTRICTED_STATUS_LABEL[profile.user_status]
 
     return (
         <header className="w-full">
@@ -145,7 +145,7 @@ export function ProfileHeader({
                 </div>
             </div>
         </header>
-    );
+    )
 }
 
 function ProfileStat({
@@ -165,7 +165,7 @@ function ProfileStat({
                 {label}
             </span>
         </span>
-    );
+    )
 }
 
 export function ProfileHeaderSkeleton() {
@@ -208,5 +208,5 @@ export function ProfileHeaderSkeleton() {
                 </div>
             </div>
         </div>
-    );
+    )
 }

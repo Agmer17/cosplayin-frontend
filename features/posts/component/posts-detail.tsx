@@ -1,15 +1,15 @@
-"use client";
+"use client"
 
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import type { PostsResponse } from "@/lib/type/posts";
-import { PostDetailMedia } from "./post-detail-media";
-import { PostDetailSidebar } from "./posts-detail-sidebar";
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import type { PostsResponse } from "@/lib/type/posts"
+import { PostDetailMedia } from "./post-detail-media"
+import { PostDetailSidebar } from "./posts-detail-sidebar"
 import { useIsMobile } from "@/lib/responsive_util"
-import { useRouter } from "next/navigation";
-import { DetailProfileDTO } from "@/lib/type/profile";
+import { useRouter } from "next/navigation"
+import { DetailProfileDTO } from "@/lib/type/profile"
 
 type PostDetailProps = {
     post: PostsResponse;
@@ -18,8 +18,8 @@ type PostDetailProps = {
 };
 
 export function PostDetail({ post, onDelete, profile }: PostDetailProps) {
-    const isMobile = useIsMobile();
-    const router = useRouter();
+    const isMobile = useIsMobile()
+    const router = useRouter()
 
 
     return (
@@ -74,5 +74,5 @@ export function PostDetail({ post, onDelete, profile }: PostDetailProps) {
 
 
         </main>
-    );
+    )
 }

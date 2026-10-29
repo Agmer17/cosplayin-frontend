@@ -1,14 +1,14 @@
 // onboarding-form.tsx  (ganti file yang kamu kirim)
-"use client";
+"use client"
 
-import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
     AtSign,
     Check,
     Loader2,
-} from "lucide-react";
-import { toast } from "sonner";
+} from "lucide-react"
+import { toast } from "sonner"
 import {
     Card,
     CardContent,
@@ -16,19 +16,19 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 
 import {
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
-} from "@/components/ui/input-group";
+} from "@/components/ui/input-group"
 
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 
-import { ImageUploadWithCrop } from "./on-boarding-image"; // sesuaikan path
-import { profileClientApi } from "../api/profile.client";
+import { ImageUploadWithCrop } from "./on-boarding-image" // sesuaikan path
+import { profileClientApi } from "../api/profile.client"
 
 interface FieldErrors {
     username?: string;
@@ -43,115 +43,115 @@ type UsernameCheck = {
 
 const getLocalUsernameError = (value: string): string | undefined => {
     if (value.length < 4 || value.length > 255) {
-        return "Username harus memiliki 4 sampai 255 karakter.";
+        return "Username harus memiliki 4 sampai 255 karakter."
     }
     if (!/^[a-zA-Z0-9._]+$/.test(value)) {
-        return "Username hanya boleh berisi huruf, angka, titik, dan underscore.";
+        return "Username hanya boleh berisi huruf, angka, titik, dan underscore."
     }
-    return undefined;
-};
+    return undefined
+}
 
 export function OnboardingForm() {
-    const router = useRouter();
+    const router = useRouter()
 
-    const [username, setUsername] = useState("");
-    const [profilePicture, setProfilePicture] = useState<File | null>(null);
-    const [bannerPicture, setBannerPicture] = useState<File | null>(null);
+    const [username, setUsername] = useState("")
+    const [profilePicture, setProfilePicture] = useState<File | null>(null)
+    const [bannerPicture, setBannerPicture] = useState<File | null>(null)
 
-    const [errors, setErrors] = useState<FieldErrors>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [usernameCheck, setUsernameCheck] = useState<UsernameCheck | null>(null);
+    const [errors, setErrors] = useState<FieldErrors>({})
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [usernameCheck, setUsernameCheck] = useState<UsernameCheck | null>(null)
 
     // ===== Username derived state =====
     const localUsernameError =
-        username.length > 0 ? getLocalUsernameError(username) : undefined;
+        username.length > 0 ? getLocalUsernameError(username) : undefined
 
-    const shouldCheck = username.length > 0 && !localUsernameError;
+    const shouldCheck = username.length > 0 && !localUsernameError
 
     const result =
-        usernameCheck?.username === username ? usernameCheck.status : null;
+        usernameCheck?.username === username ? usernameCheck.status : null
 
-    const isCheckingUsername = shouldCheck && result === null;
+    const isCheckingUsername = shouldCheck && result === null
 
     const usernameApiError =
         result === "taken"
             ? "Username sudah digunakan."
             : result === "error"
                 ? "Gagal mengecek ketersediaan username."
-                : undefined;
+                : undefined
 
     const displayedUsernameError =
-        localUsernameError ?? usernameApiError ?? errors.username;
+        localUsernameError ?? usernameApiError ?? errors.username
 
     const isUsernameAvailable =
-        shouldCheck && result === "available" && !displayedUsernameError;
+        shouldCheck && result === "available" && !displayedUsernameError
 
-    const canSubmit = isUsernameAvailable && !isCheckingUsername;
+    const canSubmit = isUsernameAvailable && !isCheckingUsername
 
     // Debounce cek username
     useEffect(() => {
-        if (!shouldCheck) return;
+        if (!shouldCheck) return
 
-        let cancelled = false;
+        let cancelled = false
 
         const timeoutId = setTimeout(async () => {
             try {
-                const isTaken = await profileClientApi.isUsernameAvaible(username);
-                if (cancelled) return;
+                const isTaken = await profileClientApi.isUsernameAvaible(username)
+                if (cancelled) return
                 setUsernameCheck({
                     username,
                     status: isTaken ? "taken" : "available",
-                });
+                })
             } catch {
-                if (cancelled) return;
-                setUsernameCheck({ username, status: "error" });
+                if (cancelled) return
+                setUsernameCheck({ username, status: "error" })
             }
-        }, 450);
+        }, 450)
 
         return () => {
-            cancelled = true;
-            clearTimeout(timeoutId);
-        };
-    }, [username, shouldCheck]);
+            cancelled = true
+            clearTimeout(timeoutId)
+        }
+    }, [username, shouldCheck])
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+        event.preventDefault()
 
-        if (!canSubmit) return;
+        if (!canSubmit) return
 
-        setIsSubmitting(true);
+        setIsSubmitting(true)
 
         try {
-            const formData = new FormData();
-            formData.append("username", username);
+            const formData = new FormData()
+            formData.append("username", username)
 
             if (profilePicture) {
-                formData.append("profilePicture", profilePicture);
+                formData.append("profilePicture", profilePicture)
             }
             if (bannerPicture) {
-                formData.append("bannerPicture", bannerPicture);
+                formData.append("bannerPicture", bannerPicture)
             }
 
-            await profileClientApi.submitOnBoarding(formData);
+            await profileClientApi.submitOnBoarding(formData)
 
-            toast.success("Profil berhasil dilengkapi!");
-            router.push("/my-profile");
-            router.refresh();
+            toast.success("Profil berhasil dilengkapi!")
+            router.push("/my-profile")
+            router.refresh()
         } catch (error) {
-            const fieldErrors = extractFieldErrors(error);
+            const fieldErrors = extractFieldErrors(error)
 
             if (Object.keys(fieldErrors).length > 0) {
-                setErrors(fieldErrors);
-                return;
+                setErrors(fieldErrors)
+                return
             }
 
             toast.error(
                 getErrorMessage(error) ?? "Terjadi kesalahan saat menyimpan profil.",
-            );
+            )
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false)
         }
-    };
+    }
 
     return (
         <Card className="w-full max-w-lg overflow-hidden">
@@ -222,11 +222,11 @@ export function OnboardingForm() {
                                 autoFocus
                                 aria-invalid={Boolean(displayedUsernameError)}
                                 onChange={(event) => {
-                                    setUsername(event.target.value);
+                                    setUsername(event.target.value)
                                     setErrors((prev) => ({
                                         ...prev,
                                         username: undefined,
-                                    }));
+                                    }))
                                 }}
                             />
 
@@ -270,37 +270,37 @@ export function OnboardingForm() {
                 </CardFooter>
             </form>
         </Card>
-    );
+    )
 }
 
 function extractFieldErrors(error: unknown): FieldErrors {
-    if (!error || typeof error !== "object") return {};
+    if (!error || typeof error !== "object") return {}
 
-    const data = error as Record<string, unknown>;
+    const data = error as Record<string, unknown>
     const source =
         data.errors && typeof data.errors === "object"
             ? (data.errors as Record<string, unknown>)
-            : data;
+            : data
 
-    const fieldErrors: FieldErrors = {};
+    const fieldErrors: FieldErrors = {}
 
     if (typeof source.username === "string") {
-        fieldErrors.username = source.username;
+        fieldErrors.username = source.username
     }
     if (typeof source.profilePicture === "string") {
-        fieldErrors.profilePicture = source.profilePicture;
+        fieldErrors.profilePicture = source.profilePicture
     }
     if (typeof source.bannerPicture === "string") {
-        fieldErrors.bannerPicture = source.bannerPicture;
+        fieldErrors.bannerPicture = source.bannerPicture
     }
 
-    return fieldErrors;
+    return fieldErrors
 }
 
 function getErrorMessage(error: unknown): string | undefined {
-    if (!error || typeof error !== "object") return undefined;
-    const data = error as Record<string, unknown>;
-    if (typeof data.message === "string") return data.message;
-    if (typeof data.error === "string") return data.error;
-    return undefined;
+    if (!error || typeof error !== "object") return undefined
+    const data = error as Record<string, unknown>
+    if (typeof data.message === "string") return data.message
+    if (typeof data.error === "string") return data.error
+    return undefined
 }

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
     createContext,
@@ -9,8 +9,8 @@ import {
     useState,
     type FormEvent,
     type ReactNode,
-} from "react";
-import type { UseQueryResult } from "@tanstack/react-query";
+} from "react"
+import type { UseQueryResult } from "@tanstack/react-query"
 import {
     ChevronDown,
     ChevronUp,
@@ -20,27 +20,27 @@ import {
     MoreHorizontal,
     Trash2,
     X,
-} from "lucide-react";
-import { toast } from "sonner";
+} from "lucide-react"
+import { toast } from "sonner"
 
 import {
     Avatar,
     AvatarFallback,
     AvatarImage,
-} from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 
-import type { CommentResponse } from "@/lib/type/comment";
-import type { DetailProfileDTO } from "@/lib/type/profile";
+import type { CommentResponse } from "@/lib/type/comment"
+import type { DetailProfileDTO } from "@/lib/type/profile"
 
 import {
     useCommentReplies,
@@ -48,10 +48,10 @@ import {
     useDeleteComment,
     usePostComments,
     useToggleCommentLike,
-} from "../hooks/use-comment";
-import { compactNumber } from "@/lib/number-formatter-utils";
+} from "../hooks/use-comment"
+import { compactNumber } from "@/lib/number-formatter-utils"
 
-const MAX_INDENT_DEPTH = 1;
+const MAX_INDENT_DEPTH = 1
 
 // ---------------------------------------------------------------------------
 // Reply context
@@ -73,55 +73,55 @@ type CommentReplyContextValue = {
 
 const CommentReplyContext = createContext<CommentReplyContextValue | null>(
     null
-);
+)
 
 function useCommentReply() {
-    const ctx = useContext(CommentReplyContext);
+    const ctx = useContext(CommentReplyContext)
     if (!ctx) {
         throw new Error(
             "useCommentReply must be used inside <CommentReplyProvider>"
-        );
+        )
     }
-    return ctx;
+    return ctx
 }
 
 export function CommentReplyProvider({ children }: { children: ReactNode }) {
-    const [replyTo, setReplyTo] = useState<ReplyTarget>(null);
+    const [replyTo, setReplyTo] = useState<ReplyTarget>(null)
 
-    const focusFnRef = useRef<(() => void) | null>(null);
-    const onReplyStartRef = useRef<((username: string) => void) | null>(null);
-    const onReplyCancelRef = useRef<(() => void) | null>(null);
+    const focusFnRef = useRef<(() => void) | null>(null)
+    const onReplyStartRef = useRef<((username: string) => void) | null>(null)
+    const onReplyCancelRef = useRef<(() => void) | null>(null)
 
     const registerComposerFocus = useCallback((fn: () => void) => {
-        focusFnRef.current = fn;
-    }, []);
+        focusFnRef.current = fn
+    }, [])
 
     const registerOnReplyStart = useCallback(
         (fn: (username: string) => void) => {
-            onReplyStartRef.current = fn;
+            onReplyStartRef.current = fn
         },
         []
-    );
+    )
 
     const registerOnReplyCancel = useCallback((fn: () => void) => {
-        onReplyCancelRef.current = fn;
-    }, []);
+        onReplyCancelRef.current = fn
+    }, [])
 
     const startReply = useCallback(
         (target: { id: string; username: string }) => {
-            setReplyTo(target);
-            onReplyStartRef.current?.(target.username);
+            setReplyTo(target)
+            onReplyStartRef.current?.(target.username)
             requestAnimationFrame(() => {
-                focusFnRef.current?.();
-            });
+                focusFnRef.current?.()
+            })
         },
         []
-    );
+    )
 
     const cancelReply = useCallback(() => {
-        setReplyTo(null);
-        onReplyCancelRef.current?.();
-    }, []);
+        setReplyTo(null)
+        onReplyCancelRef.current?.()
+    }, [])
 
     return (
         <CommentReplyContext.Provider
@@ -136,7 +136,7 @@ export function CommentReplyProvider({ children }: { children: ReactNode }) {
         >
             {children}
         </CommentReplyContext.Provider>
-    );
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -144,17 +144,17 @@ export function CommentReplyProvider({ children }: { children: ReactNode }) {
 // ---------------------------------------------------------------------------
 
 function formatCommentDate(value: string) {
-    if (!value) return "";
+    if (!value) return ""
 
-    const date = new Date(value);
+    const date = new Date(value)
 
     if (Number.isNaN(date.getTime()) || date.getUTCFullYear() <= 1970) {
-        return "";
+        return ""
     }
 
     return new Intl.DateTimeFormat("id-ID", {
         dateStyle: "medium",
-    }).format(date);
+    }).format(date)
 }
 
 function CommentAvatar({
@@ -174,7 +174,7 @@ function CommentAvatar({
                 {username.charAt(0).toUpperCase()}
             </AvatarFallback>
         </Avatar>
-    );
+    )
 }
 
 function CommentSkeleton() {
@@ -193,7 +193,7 @@ function CommentSkeleton() {
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
 function CommentListSkeleton() {
@@ -206,7 +206,7 @@ function CommentListSkeleton() {
                 <CommentSkeleton key={index} />
             ))}
         </div>
-    );
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -224,53 +224,53 @@ function CommentItem({
     currentProfile: DetailProfileDTO | null;
     depth?: number;
 }) {
-    const [repliesOpen, setRepliesOpen] = useState(false);
+    const [repliesOpen, setRepliesOpen] = useState(false)
 
-    const isFlat = depth >= MAX_INDENT_DEPTH;
+    const isFlat = depth >= MAX_INDENT_DEPTH
 
-    const repliesQuery = useCommentReplies(comment.id, repliesOpen);
-    const toggleLike = useToggleCommentLike();
-    const deleteComment = useDeleteComment(postId);
-    const { startReply } = useCommentReply();
+    const repliesQuery = useCommentReplies(comment.id, repliesOpen)
+    const toggleLike = useToggleCommentLike()
+    const deleteComment = useDeleteComment(postId)
+    const { startReply } = useCommentReply()
 
-    const isLiked = comment.is_liked ?? false;
+    const isLiked = comment.is_liked ?? false
     const isOwner =
         !!currentProfile?.username &&
-        currentProfile.username === comment.username;
+        currentProfile.username === comment.username
 
     function handleLike() {
         if (!currentProfile) {
-            toast.error("Kamu harus login untuk menyukai komentar.");
-            return;
+            toast.error("Kamu harus login untuk menyukai komentar.")
+            return
         }
-        toggleLike.mutate({ commentId: comment.id, liked: !isLiked });
+        toggleLike.mutate({ commentId: comment.id, liked: !isLiked })
     }
 
     function handleOpenReply() {
         if (!currentProfile) {
-            toast.error("Kamu harus login untuk membalas komentar.");
-            return;
+            toast.error("Kamu harus login untuk membalas komentar.")
+            return
         }
 
-        startReply({ id: comment.id, username: comment.username });
+        startReply({ id: comment.id, username: comment.username })
     }
 
     function handleDelete() {
         deleteComment.mutate(comment.id, {
             onSuccess: () => {
-                toast.success("Komentar berhasil dihapus.");
+                toast.success("Komentar berhasil dihapus.")
             },
             onError: () => {
-                toast.error("Gagal menghapus komentar.");
+                toast.error("Gagal menghapus komentar.")
             },
-        });
+        })
     }
 
     function handleReport() {
-        toast.success("Laporan komentar telah dikirim.");
+        toast.success("Laporan komentar telah dikirim.")
     }
 
-    const replies = repliesQuery.data ?? [];
+    const replies = repliesQuery.data ?? []
 
     return (
         <div className="flex flex-col">
@@ -445,7 +445,7 @@ function CommentItem({
                 </div>
             )}
         </div>
-    );
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -462,7 +462,7 @@ export function PostComments({
     query: UseQueryResult<CommentResponse[], Error>;
 }) {
     if (query.isPending) {
-        return <CommentListSkeleton />;
+        return <CommentListSkeleton />
     }
 
     if (query.isError && !query.data) {
@@ -486,10 +486,10 @@ export function PostComments({
                     Coba lagi
                 </Button>
             </div>
-        );
+        )
     }
 
-    const comments = query.data ?? [];
+    const comments = query.data ?? []
 
     if (comments.length === 0) {
         return (
@@ -507,7 +507,7 @@ export function PostComments({
                     </p>
                 </div>
             </div>
-        );
+        )
     }
 
     return (
@@ -521,7 +521,7 @@ export function PostComments({
                 />
             ))}
         </div>
-    );
+    )
 }
 
 export function PostCommentsSection({
@@ -531,7 +531,7 @@ export function PostCommentsSection({
     postId: string;
     currentProfile: DetailProfileDTO | null;
 }) {
-    const query = usePostComments(postId);
+    const query = usePostComments(postId)
 
     return (
         <PostComments
@@ -539,7 +539,7 @@ export function PostCommentsSection({
             currentProfile={currentProfile}
             query={query}
         />
-    );
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -553,43 +553,43 @@ export function PostCommentComposer({
     postId: string;
     currentProfile: DetailProfileDTO | null;
 }) {
-    const [draft, setDraft] = useState("");
-    const inputRef = useRef<HTMLInputElement>(null);
+    const [draft, setDraft] = useState("")
+    const inputRef = useRef<HTMLInputElement>(null)
 
-    const createComment = useCreateComment(postId);
+    const createComment = useCreateComment(postId)
     const {
         replyTo,
         cancelReply,
         registerComposerFocus,
         registerOnReplyStart,
         registerOnReplyCancel,
-    } = useCommentReply();
+    } = useCommentReply()
 
     useEffect(() => {
         registerComposerFocus(() => {
-            inputRef.current?.focus();
-            const len = inputRef.current?.value.length ?? 0;
-            inputRef.current?.setSelectionRange(len, len);
-        });
+            inputRef.current?.focus()
+            const len = inputRef.current?.value.length ?? 0
+            inputRef.current?.setSelectionRange(len, len)
+        })
 
         registerOnReplyStart((username) => {
-            setDraft(`@${username} `);
-        });
+            setDraft(`@${username} `)
+        })
 
         registerOnReplyCancel(() => {
-            setDraft("");
-        });
+            setDraft("")
+        })
     }, [
         registerComposerFocus,
         registerOnReplyStart,
         registerOnReplyCancel,
-    ]);
+    ])
 
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
+        event.preventDefault()
 
-        const value = draft.trim();
-        if (!value || createComment.isPending) return;
+        const value = draft.trim()
+        if (!value || createComment.isPending) return
 
         createComment.mutate(
             {
@@ -598,18 +598,18 @@ export function PostCommentComposer({
             },
             {
                 onSuccess: () => {
-                    setDraft("");
-                    cancelReply();
+                    setDraft("")
+                    cancelReply()
                 },
                 onError: () => {
                     toast.error(
                         replyTo
                             ? "Gagal mengirim balasan."
                             : "Gagal mengirim komentar."
-                    );
+                    )
                 },
             }
-        );
+        )
     }
 
     if (!currentProfile) {
@@ -617,7 +617,7 @@ export function PostCommentComposer({
             <div className="px-4 py-3 text-center text-sm text-muted-foreground">
                 Harus login untuk menambahkan komentar.
             </div>
-        );
+        )
     }
 
     return (
@@ -689,5 +689,5 @@ export function PostCommentComposer({
                 </Button>
             </form>
         </div>
-    );
+    )
 }

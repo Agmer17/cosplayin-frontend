@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   DiscordIcon,
   GoogleIcon,
-} from "@/components/provider-icons/provider-icons";
-import { AUTH_DISCORD_LOGIN, AUTH_GOOGLE_LOGIN } from "../api/auth";
+} from "@/components/provider-icons/provider-icons"
+import { AUTH_DISCORD_LOGIN, AUTH_GOOGLE_LOGIN } from "../api/auth"
 
 function handleGoogleSignIn() {
-  window.location.href = AUTH_GOOGLE_LOGIN;
+  window.location.href = AUTH_GOOGLE_LOGIN
 }
 
 function handleDiscordSignIn() {
-  window.location.href = AUTH_DISCORD_LOGIN;
+  window.location.href = AUTH_DISCORD_LOGIN
 }
 
 interface OAuthButtonsProps {
@@ -45,5 +45,5 @@ export function OAuthButtons({ className }: OAuthButtonsProps) {
         </Button>
       </div>
     </div>
-  );
+  )
 }

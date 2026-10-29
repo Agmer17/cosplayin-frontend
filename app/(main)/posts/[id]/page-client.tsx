@@ -1,16 +1,16 @@
-"use client";
+"use client"
 
-import Link from "next/link";
+import Link from "next/link"
 
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 
-import { PostDetail } from "@/features/posts/component/posts-detail";
-import { usePostById, usePostDelete } from "@/features/posts/hooks/use-posts";
-import { useAuthStore } from "@/lib/store/auth-store";
-import { toast } from "sonner";
-import { ApiError } from "@/lib/api/api";
-import { useRouter } from "next/navigation";
+import { PostDetail } from "@/features/posts/component/posts-detail"
+import { usePostById, usePostDelete } from "@/features/posts/hooks/use-posts"
+import { useAuthStore } from "@/lib/store/auth-store"
+import { toast } from "sonner"
+import { ApiError } from "@/lib/api/api"
+import { useRouter } from "next/navigation"
 
 type PostDetailPageClientProps = {
     id: string;
@@ -58,7 +58,7 @@ export function PostDetailPageClient({
 
 
     if (isPending) {
-        return <PostDetailSkeleton />;
+        return <PostDetailSkeleton />
     }
 
     if (isError || !data) {
@@ -88,7 +88,7 @@ export function PostDetailPageClient({
                     </div>
                 </div>
             </main>
-        );
+        )
     }
 
     return <PostDetail profile={profile} onDelete={(id: string) => {
@@ -102,7 +102,7 @@ export function PostDetailPageClient({
             }
         }
 
-    }} post={data} />;
+    }} post={data} />
 }
 
 function PostDetailSkeleton() {
@@ -146,5 +146,5 @@ function PostDetailSkeleton() {
                 </div>
             </div>
         </main>
-    );
+    )
 }

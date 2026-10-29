@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react"
 
 export function PostCommentsEmpty() {
     return (
@@ -17,5 +17,5 @@ export function PostCommentsEmpty() {
                 </p>
             </div>
         </div>
-    );
+    )
 }

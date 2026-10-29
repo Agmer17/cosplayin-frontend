@@ -1,40 +1,40 @@
-"use client";
+"use client"
 
-import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { ProfileView } from "@/features/profiles/component/ProfileView";
+import { useParams } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { ProfileView } from "@/features/profiles/component/ProfileView"
 import {
     useOtherProfile,
     useUserPosts,
     useOtherUserLikes,
-} from "@/features/profiles/hooks/use-profile-query";
-import { UserCheck, UserPlus } from "lucide-react";
-import { useToggleFollow } from "@/features/follow/hooks/use-follow";
+} from "@/features/profiles/hooks/use-profile-query"
+import { UserCheck, UserPlus } from "lucide-react"
+import { useToggleFollow } from "@/features/follow/hooks/use-follow"
 
 export default function UserProfilePage() {
-    const params = useParams();
-    const username = params.username as string;
+    const params = useParams()
+    const username = params.username as string
 
-    const profileQuery = useOtherProfile(username);
-    const postsQuery = useUserPosts(username);
-    const likedPostsQuery = useOtherUserLikes(username);
+    const profileQuery = useOtherProfile(username)
+    const postsQuery = useUserPosts(username)
+    const likedPostsQuery = useOtherUserLikes(username)
 
-    const toggleFollow = useToggleFollow(username);
+    const toggleFollow = useToggleFollow(username)
 
     const isFollowing =
-        profileQuery.data?.follow_status === "FOLLOWING";
+        profileQuery.data?.follow_status === "FOLLOWING"
 
     const isPending =
-        profileQuery.data?.follow_status === "PENDING";
+        profileQuery.data?.follow_status === "PENDING"
 
     const handleToggleFollow = () => {
-        if (!profileQuery.data?.id) return;
+        if (!profileQuery.data?.id) return
 
         toggleFollow.mutate({
             userId: profileQuery.data.id,
             followed: !isFollowing && !isPending,
-        });
-    };
+        })
+    }
 
     return (
         <ProfileView
@@ -65,5 +65,5 @@ export default function UserProfilePage() {
                 </Button>
             }
         />
-    );
+    )
 }

@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
     Carousel,
     CarouselApi,
@@ -8,36 +8,36 @@ import {
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/carousel"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Images, Loader2, Play, Plus, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { PostsCommentStatus } from "@/lib/type/posts";
-import { postsApi } from "../api/posts.client";
-import { toast } from "sonner";
+} from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ArrowLeft, Images, Loader2, Play, Plus, X } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { PostsCommentStatus } from "@/lib/type/posts"
+import { postsApi } from "../api/posts.client"
+import { toast } from "sonner"
 
 const COMMENT_STATUS_OPTIONS: { value: PostsCommentStatus; label: string }[] = [
     { value: " AVAIBLE ", label: "Izinkan semua komentar" },
     { value: "NOT_AVAIBLE", label: "Matikan komentar" },
-];
+]
 
-const DEFAULT_COMMENT_STATUS: PostsCommentStatus = " AVAIBLE ";
-const MAX_FILES = 10;
-const MAX_FILE_SIZE_MB = 10;
-const MAX_CAPTION = 2200;
-const ACCEPTED_TYPES = "image/*,video/*";
+const DEFAULT_COMMENT_STATUS: PostsCommentStatus = " AVAIBLE "
+const MAX_FILES = 10
+const MAX_FILE_SIZE_MB = 10
+const MAX_CAPTION = 2200
+const ACCEPTED_TYPES = "image/*,video/*"
 
 type MediaItem = {
     id: string;
@@ -57,83 +57,83 @@ export function CreatePostForm({
     onCancel,
     onSuccess,
 }: CreatePostFormProps) {
-    const [media, setMedia] = useState<MediaItem[]>([]);
-    const [caption, setCaption] = useState("");
+    const [media, setMedia] = useState<MediaItem[]>([])
+    const [caption, setCaption] = useState("")
     const [commentStatus, setCommentStatus] =
-        useState<PostsCommentStatus>(DEFAULT_COMMENT_STATUS);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [api, setApi] = useState<CarouselApi>();
-    const [current, setCurrent] = useState(0);
+        useState<PostsCommentStatus>(DEFAULT_COMMENT_STATUS)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isDragging, setIsDragging] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [api, setApi] = useState<CarouselApi>()
+    const [current, setCurrent] = useState(0)
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
     // Selalu menyimpan media terbaru, supaya cleanup saat unmount tidak stale
-    const mediaRef = useRef<MediaItem[]>([]);
+    const mediaRef = useRef<MediaItem[]>([])
 
     const commitMedia = useCallback((next: MediaItem[]) => {
-        mediaRef.current = next;
-        setMedia(next);
-    }, []);
+        mediaRef.current = next
+        setMedia(next)
+    }, [])
 
     // Revoke semua object URL saat komponen di-unmount
     useEffect(() => {
         return () => {
-            mediaRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
-        };
-    }, []);
+            mediaRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl))
+        }
+    }, [])
 
     // Sinkronkan slide aktif + pause video saat pindah slide
     useEffect(() => {
-        if (!api) return;
+        if (!api) return
 
         const onSelect = () => {
-            setCurrent(api.selectedScrollSnap());
-            Object.values(videoRefs.current).forEach((video) => video?.pause());
-        };
+            setCurrent(api.selectedScrollSnap())
+            Object.values(videoRefs.current).forEach((video) => video?.pause())
+        }
 
-        onSelect();
-        api.on("select", onSelect);
-        api.on("reInit", onSelect);
+        onSelect()
+        api.on("select", onSelect)
+        api.on("reInit", onSelect)
         return () => {
-            api.off("select", onSelect);
-            api.off("reInit", onSelect);
-        };
-    }, [api]);
+            api.off("select", onSelect)
+            api.off("reInit", onSelect)
+        }
+    }, [api])
 
     const addFiles = useCallback(
         (files: FileList | File[] | null) => {
-            if (!files || files.length === 0) return;
+            if (!files || files.length === 0) return
 
-            const existing = mediaRef.current;
-            const remainingSlots = MAX_FILES - existing.length;
+            const existing = mediaRef.current
+            const remainingSlots = MAX_FILES - existing.length
 
             if (remainingSlots <= 0) {
-                setError(`Maksimal ${MAX_FILES} media per postingan.`);
-                return;
+                setError(`Maksimal ${MAX_FILES} media per postingan.`)
+                return
             }
 
-            const accepted: MediaItem[] = [];
-            let nextError: string | null = null;
+            const accepted: MediaItem[] = []
+            let nextError: string | null = null
 
             for (const file of Array.from(files)) {
                 if (accepted.length >= remainingSlots) {
-                    nextError = `Maksimal ${MAX_FILES} media per postingan.`;
-                    break;
+                    nextError = `Maksimal ${MAX_FILES} media per postingan.`
+                    break
                 }
 
-                const isImage = file.type.startsWith("image/");
-                const isVideo = file.type.startsWith("video/");
+                const isImage = file.type.startsWith("image/")
+                const isVideo = file.type.startsWith("video/")
 
                 if (!isImage && !isVideo) {
-                    nextError = `File "${file.name}" tidak didukung. Hanya foto dan video.`;
-                    continue;
+                    nextError = `File "${file.name}" tidak didukung. Hanya foto dan video.`
+                    continue
                 }
 
                 if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-                    nextError = `File "${file.name}" terlalu besar (maks ${MAX_FILE_SIZE_MB}MB).`;
-                    continue;
+                    nextError = `File "${file.name}" terlalu besar (maks ${MAX_FILE_SIZE_MB}MB).`
+                    continue
                 }
 
                 accepted.push({
@@ -141,86 +141,86 @@ export function CreatePostForm({
                     file,
                     previewUrl: URL.createObjectURL(file),
                     type: isImage ? "IMAGE" : "VIDEO",
-                });
+                })
             }
 
-            setError(nextError);
-            if (accepted.length === 0) return;
+            setError(nextError)
+            if (accepted.length === 0) return
 
-            commitMedia([...existing, ...accepted]);
+            commitMedia([...existing, ...accepted])
 
             // Lompat ke media pertama yang baru ditambahkan
-            const jumpTo = existing.length;
-            setTimeout(() => api?.scrollTo(jumpTo), 50);
+            const jumpTo = existing.length
+            setTimeout(() => api?.scrollTo(jumpTo), 50)
         },
         [api, commitMedia],
-    );
+    )
 
     const removeMedia = (id: string) => {
-        const target = mediaRef.current.find((m) => m.id === id);
-        if (target) URL.revokeObjectURL(target.previewUrl);
-        delete videoRefs.current[id];
-        commitMedia(mediaRef.current.filter((m) => m.id !== id));
-        setError(null);
-    };
+        const target = mediaRef.current.find((m) => m.id === id)
+        if (target) URL.revokeObjectURL(target.previewUrl)
+        delete videoRefs.current[id]
+        commitMedia(mediaRef.current.filter((m) => m.id !== id))
+        setError(null)
+    }
 
-    const openPicker = () => fileInputRef.current?.click();
+    const openPicker = () => fileInputRef.current?.click()
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        addFiles(e.target.files);
+        addFiles(e.target.files)
         // reset supaya bisa pilih file yang sama lagi
-        e.target.value = "";
-    };
+        e.target.value = ""
+    }
 
     // ===== Drag & drop =====
     const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
+        e.preventDefault()
+        setIsDragging(true)
+    }
 
     const handleDragLeave = (e: React.DragEvent) => {
-        if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-        setIsDragging(false);
-    };
+        if (e.currentTarget.contains(e.relatedTarget as Node)) return
+        setIsDragging(false)
+    }
 
     const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        addFiles(e.dataTransfer.files);
-    };
+        e.preventDefault()
+        setIsDragging(false)
+        addFiles(e.dataTransfer.files)
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (media.length === 0 || isSubmitting) return;
+        e.preventDefault()
+        if (media.length === 0 || isSubmitting) return
 
-        setIsSubmitting(true);
+        setIsSubmitting(true)
 
         try {
-            const formData = new FormData();
-            formData.append("caption", caption.trim());
-            formData.append("commentStatus", commentStatus);
-            media.forEach((item) => formData.append("media", item.file));
+            const formData = new FormData()
+            formData.append("caption", caption.trim())
+            formData.append("commentStatus", commentStatus)
+            media.forEach((item) => formData.append("media", item.file))
 
-            await postsApi.client.create(formData);
+            await postsApi.client.create(formData)
 
-            media.forEach((item) => URL.revokeObjectURL(item.previewUrl));
-            commitMedia([]);
-            setCaption("");
-            setCommentStatus(DEFAULT_COMMENT_STATUS);
-            setCurrent(0);
+            media.forEach((item) => URL.revokeObjectURL(item.previewUrl))
+            commitMedia([])
+            setCaption("")
+            setCommentStatus(DEFAULT_COMMENT_STATUS)
+            setCurrent(0)
 
-            toast.success("Postingan berhasil dibagikan");
-            onSuccess?.();
+            toast.success("Postingan berhasil dibagikan")
+            onSuccess?.()
         } catch (err) {
             toast.error(
                 err instanceof Error ? err.message : "Terjadi kesalahan. Coba lagi.",
-            );
+            )
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false)
         }
-    };
-    const hasMedia = media.length > 0;
-    const canSubmit = hasMedia && !isSubmitting;
+    }
+    const hasMedia = media.length > 0
+    const canSubmit = hasMedia && !isSubmitting
 
     return (
         <form
@@ -280,8 +280,8 @@ export function CreatePostForm({
                             onClick={openPicker}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter" || e.key === " ") {
-                                    e.preventDefault();
-                                    openPicker();
+                                    e.preventDefault()
+                                    openPicker()
                                 }
                             }}
                             className={cn(
@@ -306,8 +306,8 @@ export function CreatePostForm({
                             <Button
                                 type="button"
                                 onClick={(e) => {
-                                    e.stopPropagation();
-                                    openPicker();
+                                    e.stopPropagation()
+                                    openPicker()
                                 }}
                             >
                                 Pilih dari perangkat
@@ -338,7 +338,7 @@ export function CreatePostForm({
                                                     ) : (
                                                         <video
                                                             ref={(el) => {
-                                                                videoRefs.current[item.id] = el;
+                                                                videoRefs.current[item.id] = el
                                                             }}
                                                             src={item.previewUrl}
                                                             controls
@@ -545,5 +545,5 @@ export function CreatePostForm({
                 </section>
             </div>
         </form>
-    );
+    )
 }

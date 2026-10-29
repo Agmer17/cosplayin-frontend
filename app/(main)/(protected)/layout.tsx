@@ -1,5 +1,5 @@
-import { profileServerApi } from "@/features/profiles/api/profile.server";
-import { redirect } from "next/navigation";
+import { profileServerApi } from "@/features/profiles/api/profile.server"
+import { redirect } from "next/navigation"
 
 
 interface protectedLayerProps {

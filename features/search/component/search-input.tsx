@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
 import {
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
-} from "@/components/ui/input-group";
-import { Search } from "lucide-react";
+} from "@/components/ui/input-group"
+import { Search } from "lucide-react"
 
 type Props = {
     value: string;
@@ -29,5 +29,5 @@ export function ExploreSearchInput({
                 <Search className="size-5" />
             </InputGroupAddon>
         </InputGroup>
-    );
+    )
 }

@@ -1,8 +1,7 @@
-"use client";
+"use client"
 
-import { Grid3x3, Heart } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useIsMobile } from "@/lib/responsive_util";
+import { Grid3x3, Heart } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type ProfileTab = "posts" | "likes";
 
@@ -15,7 +14,7 @@ type ProfileTabsProps = {
 const activeTriggerClass =
     "data-[state=active]:bg-primary! data-[state=active]:text-primary-foreground! " +
     "data-active:bg-primary! data-active:text-primary-foreground! " +
-    "dark:data-[state=active]:bg-primary! dark:data-active:bg-primary!";
+    "dark:data-[state=active]:bg-primary! dark:data-active:bg-primary!"
 
 export function ProfileTabs({
     activeTab,
@@ -48,5 +47,5 @@ export function ProfileTabs({
                 )}
             </TabsList>
         </Tabs>
-    );
+    )
 }

@@ -1,10 +1,10 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
+ 
+"use client"
 
-import Link from "next/link";
+import Link from "next/link"
 
-import { DetailProfileDTO } from "@/lib/type/profile";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DetailProfileDTO } from "@/lib/type/profile"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 type Props = {
     users?: DetailProfileDTO[];
@@ -21,7 +21,7 @@ export function ProfileList({
             <div className="py-20 text-center">
                 Tidak ada pengguna ditemukan
             </div>
-        );
+        )
     }
 
 
@@ -73,5 +73,5 @@ export function ProfileList({
                 </Link>
             ))}
         </div>
-    );
+    )
 }

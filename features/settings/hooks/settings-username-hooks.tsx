@@ -1,4 +1,4 @@
-import { profileClientApi } from "@/features/profiles/api/profile.client";
+import { profileClientApi } from "@/features/profiles/api/profile.client"
 
 export async function isUsernameAvaible(username: string) {
 

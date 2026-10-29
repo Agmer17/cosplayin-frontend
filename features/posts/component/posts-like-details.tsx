@@ -2,7 +2,7 @@
 "use client"
 
 import { useIsMobile } from "@/lib/responsive_util"
-import { usePostsLikeDetails } from "../hooks/use-posts";
+import { usePostsLikeDetails } from "../hooks/use-posts"
 
 import {
     Dialog,
@@ -47,7 +47,7 @@ export function PostsLikeDetails({
         isPending,
         isError,
         refetch,
-    } = usePostsLikeDetails(postId);
+    } = usePostsLikeDetails(postId)
 
     const content = (
         <div className="flex min-h-0 flex-col">

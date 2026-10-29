@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import type { ReactNode } from "react";
-import Link from "next/link";
-import { Bookmark, Camera, Copy, Heart, Play, Share2 } from "lucide-react";
+import type { ReactNode } from "react"
+import Link from "next/link"
+import { Bookmark, Camera, Copy, Heart, Play, Share2 } from "lucide-react"
 
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useIsMobile } from "@/lib/responsive_util";
-import type { PostsResponse } from "@/lib/type/posts";
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useIsMobile } from "@/lib/responsive_util"
+import type { PostsResponse } from "@/lib/type/posts"
 
 const compactNumber = new Intl.NumberFormat("id-ID", {
     notation: "compact",
     maximumFractionDigits: 1,
-});
+})
 
 /* ---------------------------------- Item ---------------------------------- */
 
@@ -23,13 +23,13 @@ function PostGridItem({
     post: PostsResponse;
     showStats: boolean;
 }) {
-    const media = post.media ?? [];
+    const media = post.media ?? []
     const cover = [...media].sort(
         (a, b) => a.display_order - b.display_order,
-    )[0];
+    )[0]
 
-    const isMultiple = media.length > 1;
-    const isVideo = cover?.media_type === "VIDEO";
+    const isMultiple = media.length > 1
+    const isVideo = cover?.media_type === "VIDEO"
 
     return (
         <Link
@@ -106,7 +106,7 @@ function PostGridItem({
                 </div>
             )}
         </Link>
-    );
+    )
 }
 
 function Stat({
@@ -121,7 +121,7 @@ function Stat({
             {icon}
             {compactNumber.format(value ?? 0)}
         </span>
-    );
+    )
 }
 
 /* ---------------------------------- Grid ---------------------------------- */
@@ -141,14 +141,14 @@ export function PostsGrid({
     onRetry,
     emptyMessage = "tidak ada postingan"
 }: PostsGridProps) {
-    const isMobile = useIsMobile();
+    const isMobile = useIsMobile()
     console.log(posts)
 
     const gridClass = `grid grid-cols-3 ${isMobile ? "gap-0.5" : "gap-1"
-        }`;
+        }`
 
     if (isPending) {
-        return <PostsGridSkeleton />;
+        return <PostsGridSkeleton />
     }
 
     if (isError) {
@@ -168,7 +168,7 @@ export function PostsGrid({
                     </Button>
                 )}
             </div>
-        );
+        )
     }
 
     if (!posts || posts.length === 0) {
@@ -183,7 +183,7 @@ export function PostsGrid({
                 </h3>
 
             </div>
-        );
+        )
     }
 
     return (
@@ -196,11 +196,11 @@ export function PostsGrid({
                 />
             ))}
         </div>
-    );
+    )
 }
 
 export function PostsGridSkeleton() {
-    const isMobile = useIsMobile();
+    const isMobile = useIsMobile()
 
     return (
         <div
@@ -216,5 +216,5 @@ export function PostsGridSkeleton() {
                 />
             ))}
         </div>
-    );
+    )
 }

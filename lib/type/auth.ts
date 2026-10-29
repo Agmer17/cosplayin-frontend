@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from "./user";
+import { UserRole, UserStatus } from "./user"
 
 
 export interface UserCredentials {

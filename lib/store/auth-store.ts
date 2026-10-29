@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { DetailProfileDTO } from "../type/profile";
+import { create } from "zustand"
+import { DetailProfileDTO } from "../type/profile"
 
 interface AuthState {
     user : DetailProfileDTO | null
@@ -11,10 +11,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
 
   setUser: (user) => {
-    set({ user });
+    set({ user })
   },
 
   clearUser: () => {
-    set({ user: null });
+    set({ user: null })
   },
-}));
+}))

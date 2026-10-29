@@ -9,7 +9,7 @@ export type navigationItem = {
 }
 
 export const isActive = (url: string, activePage: string) =>
-    url === "/" ? activePage === "/" : activePage === url || activePage.startsWith(url + "/");
+    url === "/" ? activePage === "/" : activePage === url || activePage.startsWith(url + "/")
 
 export const navItems: navigationItem[] = [
     {
@@ -42,7 +42,7 @@ export const navItems: navigationItem[] = [
     },
     {
         title: "event cosplay",
-        url: "/anime-event",
+        url: "/cosplay-event",
         icon: CalendarClock,
         appearMobile: true,
         needLogin: false

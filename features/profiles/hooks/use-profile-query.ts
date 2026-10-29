@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { profileClientApi } from "@/features/profiles/api/profile.client";
-import { postsApi } from "@/features/posts/api/posts.client";
+import { useQuery } from "@tanstack/react-query"
+import { profileClientApi } from "@/features/profiles/api/profile.client"
+import { postsApi } from "@/features/posts/api/posts.client"
 
 export const profileKeys = {
     me: ["profile", "me"] as const,
@@ -10,13 +10,13 @@ export const profileKeys = {
         ["profile", "posts", username] as const,
     otherLikedPosts : (username : string) =>
         ["profile", "likes", username]
-};
+}
 
 export function useMyProfile() {
     return useQuery({
         queryKey: profileKeys.me,
         queryFn: () => profileClientApi.getMyProfile(),
-    });
+    })
 }
 
 export function useOtherProfile(username?: string) {
@@ -25,7 +25,7 @@ export function useOtherProfile(username?: string) {
         queryFn: () =>
             profileClientApi.getOtherProfile(username as string),
         enabled: Boolean(username),
-    });
+    })
 }
 
 export function useUserPosts(username?: string) {
@@ -34,19 +34,19 @@ export function useUserPosts(username?: string) {
         queryFn: () =>
             postsApi.client.getMyPosts(username as string),
         enabled: Boolean(username),
-    });
+    })
 }
 
 export function useMyLikes() {
     return useQuery({
         queryKey: ["my-likes"],
         queryFn: () => postsApi.client.getMyLikedPosts(),
-    });
+    })
 }
 export function useOtherUserLikes(username : string) {
     return useQuery({
         queryKey: profileKeys.otherLikedPosts(username),
         queryFn: () => postsApi.client.getOtherLikesPosts(username),
-    });
+    })
 }
 

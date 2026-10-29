@@ -1,34 +1,34 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useState } from "react"
 
-import { PostsGrid } from "@/features/posts/component/posts-grid";
-import { ProfileList } from "@/features/profiles/component/profile-lists";
+import { PostsGrid } from "@/features/posts/component/posts-grid"
+import { ProfileList } from "@/features/profiles/component/profile-lists"
 
-import { ExploreTabs } from "./explore-tabs";
-import { ExploreSearchInput } from "./search-input";
+import { ExploreTabs } from "./explore-tabs"
+import { ExploreSearchInput } from "./search-input"
 
 import {
     useSearchPosts,
     useSearchUsers,
-} from "../hooks/use-search-input";
-import { useAuthStore } from "@/lib/store/auth-store";
+} from "../hooks/use-search-input"
+import { useAuthStore } from "@/lib/store/auth-store"
 
 export function ExploreContent() {
-    const [query, setQuery] = useState("");
-    const [tab, setTab] = useState<"posts" | "users">("posts");
+    const [query, setQuery] = useState("")
+    const [tab, setTab] = useState<"posts" | "users">("posts")
 
     const currentProfile = useAuthStore((state) => state.user)
 
     const postsQuery = useSearchPosts(
         query,
         tab === "posts"
-    );
+    )
 
     const usersQuery = useSearchUsers(
         query,
         tab === "users"
-    );
+    )
 
     return (
         <div className="flex flex-col gap-4 pt-4 md:pt-0">
@@ -61,5 +61,5 @@ export function ExploreContent() {
                 />
             )}
         </div>
-    );
+    )
 }
