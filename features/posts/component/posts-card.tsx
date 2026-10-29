@@ -26,12 +26,12 @@ import { PostOptionsDialog } from "./post-option-dialog";
 import { toast } from "sonner";
 import { CommentsPanel } from "./comments-pannel";
 import { compactNumber, timeAgo } from "@/lib/number-formatter-utils";
+import { PostsLikeDetails } from "./posts-like-details";
+import { useToggleFollow } from "@/features/follow/hooks/use-follow";
 
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                    */
 /* -------------------------------------------------------------------------- */
-
-
 
 function UserAvatar({
     user,
@@ -40,25 +40,19 @@ function UserAvatar({
     user: DetailProfileDTO | null;
     className?: string;
 }) {
-
     if (!user) {
-        return <></>
+        return <></>;
     }
 
     return (
         <Avatar className={className}>
-            <AvatarImage
-                src={user.avatar_url}
-                alt={user.display_name}
-            />
+            <AvatarImage src={user.avatar_url} alt={user.display_name} />
             <AvatarFallback>
                 {user.display_name.slice(0, 1).toUpperCase()}
             </AvatarFallback>
         </Avatar>
     );
 }
-
-
 
 /* -------------------------------------------------------------------------- */
 /* PostCard                                                                   */
@@ -71,7 +65,12 @@ type PostCardProps = {
     className?: string;
 };
 
-function PostCardBase({ post, currentUser, onReport, className }: PostCardProps) {
+function PostCardBase({
+    post,
+    currentUser,
+    onReport,
+    className,
+}: PostCardProps) {
     const postId = post.posts_id;
     const { data } = useQuery({
         queryKey: ["posts", postId],
@@ -84,6 +83,7 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
     const current = data ?? post;
 
     const { liked, toggleLike } = usePostsLike(postId, current.liked);
+
     const { bookmarked, toggleBookmark } = usePostsBookmark(
         postId,
         current.bookmarked,
@@ -91,19 +91,20 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
 
     const handleToggleLike = () => {
         if (!currentUser) {
-            toast.error("kamu harus login sebelum like posts!")
+            toast.error("kamu harus login sebelum like posts!");
         }
 
-        toggleLike()
-    }
+        toggleLike();
+    };
     const handleToggleBookmark = () => {
         if (!currentUser) {
-            toast.error("kamu harus login sebelum like masukin postingan ke bookmark!")
+            toast.error(
+                "kamu harus login sebelum like masukin postingan ke bookmark!",
+            );
         }
 
-        toggleBookmark()
-    }
-
+        toggleBookmark();
+    };
 
     const [optionsOpen, setOptionsOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(false);
@@ -113,6 +114,8 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
     const commentsEnabled = current.comment_availability !== "NOT_AVAIBLE";
     const isLongCaption =
         current.caption.length > 110 || current.caption.includes("\n");
+
+    const [likeDetails, setLikeDetails] = useState(false);
 
     return (
         <article
@@ -129,9 +132,7 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
                 >
                     <UserAvatar user={author} className="size-8 shrink-0 sm:size-9" />
                     <div className="min-w-0 flex-1 leading-tight">
-                        <p className="truncate text-sm font-semibold">
-                            {author.username}
-                        </p>
+                        <p className="truncate text-sm font-semibold">{author.username}</p>
                         <div>
                             <p
                                 className="truncate text-xs text-muted-foreground"
@@ -142,18 +143,6 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
                         </div>
                     </div>
                 </Link>
-
-                {currentUser?.id !== author.id && (
-                    <Button
-                        variant="default"
-                        size="sm"
-                        className="h-7 shrink-0 px-2.5 text-xs font-semibold sm:h-8 sm:px-3"
-                    // onClick={handleFollow}  // nanti hubungkan ke hook follow-mu
-                    >
-                        Ikuti
-                    </Button>
-                )}
-
                 <Button
                     variant="ghost"
                     size="icon"
@@ -188,7 +177,10 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
                             />
                         </Button>
 
-                        <span className="text-sm font-semibold tabular-nums">
+                        <span
+                            onClick={() => setLikeDetails(true)}
+                            className="hover:cursor-pointer text-sm font-semibold tabular-nums"
+                        >
                             {compactNumber.format(current.like_count)}
                         </span>
                     </div>
@@ -255,8 +247,6 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
 
             {/* Meta */}
             <div className="space-y-1 px-4 pb-3">
-
-
                 {current.caption && (
                     <div className="text-sm">
                         <p
@@ -316,6 +306,12 @@ function PostCardBase({ post, currentUser, onReport, className }: PostCardProps)
                     currentUser={currentUser}
                 />
             )}
+
+            <PostsLikeDetails
+                open={likeDetails}
+                postId={postId}
+                onOpenChange={(b) => setLikeDetails(b)}
+            />
         </article>
     );
 }

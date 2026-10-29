@@ -243,7 +243,7 @@ function CommentItem({
             toast.error("Kamu harus login untuk menyukai komentar.");
             return;
         }
-        toggleLike.mutate(comment.id);
+        toggleLike.mutate({ commentId: comment.id, liked: !isLiked });
     }
 
     function handleOpenReply() {
@@ -267,7 +267,6 @@ function CommentItem({
     }
 
     function handleReport() {
-        // Placeholder — ganti dengan API report kalau sudah ada
         toast.success("Laporan komentar telah dikirim.");
     }
 

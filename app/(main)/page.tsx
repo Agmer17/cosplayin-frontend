@@ -7,7 +7,7 @@ export default function Home() {
   const authData = useAuthStore((state) => state.user)
 
   return (
-    <div className=" w-full flex flex-col flex-1 items-center justify-center font-sans bg-background">
+    <div className=" w-full flex flex-col flex-1 items-center justify-center font-sans bg-background overflow-x-hidden">
       <FeedPage currentUser={authData} />
     </div>
   );

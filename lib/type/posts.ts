@@ -1,4 +1,5 @@
 import { DetailProfileDTO } from "./profile";
+import { UserRole } from "./user";
 
 export type SupportedFileType = "VIDEO" | "AUDIO" | "IMAGE" | "DOCUMENT" | "ANY"
 export type PostsStatus = "VISIBLE" | "HIDDEN"
@@ -28,3 +29,22 @@ export type PostsResponse = {
   bookmarked: boolean;
   media: PostsMediaResponse[];
 };
+
+
+
+export type PostsLikeAuthorDto = {
+  user_id : string,
+  username : string,
+  display_name : string,
+  role : UserRole,
+  avatar_url : string  
+}
+
+
+export type PostsLikeDetailResponse = {
+  like_id : string
+  posts_id : string
+  author : PostsLikeAuthorDto
+  created_at : string
+
+}

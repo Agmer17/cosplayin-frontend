@@ -3,7 +3,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar"
 import DesktopSidebar from "./desktop-sidebar"
 import { usePathname } from "next/navigation"
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useIsMobile } from "@/lib/responsive_util"
 import MobileBottomBar from "../mobile/MobileBottomBar"
 import { useAuthStore } from "@/lib/store/auth-store"
 import { MobileNavbar } from "../mobile/mobile-navbar"

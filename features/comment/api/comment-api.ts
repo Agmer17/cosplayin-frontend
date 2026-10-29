@@ -41,8 +41,15 @@ export const commentsApi = {
         return data;
     },
 
-    toggleLike: async (commentId: string) => {
+    createLikeComment: async (commentId: string) => {
         const data = await clientApi.post<unknown>(
+            `/comment/${commentId}/likes`
+        );
+
+        return data;
+    },
+    deleteLikeComment: async (commentId: string) => {
+        const data = await clientApi.delete<unknown>(
             `/comment/${commentId}/likes`
         );
 

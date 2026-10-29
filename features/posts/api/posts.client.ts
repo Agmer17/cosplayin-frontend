@@ -1,6 +1,6 @@
 import { RequestOptions } from "@/lib/api/api";
 import { clientApi } from "@/lib/api/client-api";
-import { PostsResponse } from "@/lib/type/posts";
+import { PostsLikeDetailResponse, PostsResponse } from "@/lib/type/posts";
 export const postsApi = {
     client : {
         getMyPosts : (username : string, options? : RequestOptions) => 
@@ -24,6 +24,8 @@ export const postsApi = {
         getOtherLikesPosts : (username : string) => 
             clientApi.get<PostsResponse[]>("/users/" + username +"/likes"),
 
+        getPostLikeDetails : (id : string) =>
+            clientApi.get<PostsLikeDetailResponse[]>("/posts/" + id + "/likes"),
         
         addToBookmark : (id : string) => 
             clientApi.post("/posts/" + id + "/bookmark", null),
@@ -37,11 +39,9 @@ export const postsApi = {
             clientApi.get<PostsResponse[]>("/posts/feed"),
 
         getMyBookmark : () => 
-            clientApi.get<PostsResponse[]>("/profiles/me/bookmark") 
-
+            clientApi.get<PostsResponse[]>("/profiles/me/bookmark")
         
-
-
+    
 
     }
 }

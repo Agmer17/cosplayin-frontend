@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { PostsResponse } from "@/lib/type/posts";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/lib/responsive_util"
 import Link from "next/link";
 import { usePostsBookmark, usePostsLike } from "../hooks/use-posts";
 import { DetailProfileDTO } from "@/lib/type/profile";
@@ -26,6 +26,7 @@ import {
     PostCommentsSection,
 } from "@/features/comment/component/post-comment";
 import { compactNumber } from "@/lib/number-formatter-utils";
+import { PostsLikeDetails } from "./posts-like-details";
 
 type PostDetailSidebarProps = {
     post: PostsResponse;
@@ -50,6 +51,8 @@ export function PostDetailSidebar({
 }: PostDetailSidebarProps) {
     const author = post.author;
     const isMobile = useIsMobile();
+
+    const [likeDetails, setLikeDetails] = useState(false)
 
     const [open, setOpen] = useState(false);
     const [commentOpen, setCommentOpen] = useState(false);
@@ -231,7 +234,7 @@ export function PostDetailSidebar({
                                             }`}
                                     />
                                 </Button>
-                                <span className="text-sm tabular-nums font-semibold -ml-1 mr-2">
+                                <span onClick={() => setLikeDetails(true)} className="hover:cursor-pointer text-sm font-semibold tabular-nums">
                                     {compactNumber.format(post.like_count)}
                                 </span>
 
@@ -319,7 +322,7 @@ export function PostDetailSidebar({
                                             }`}
                                     />
                                 </Button>
-                                <span className="text-sm tabular-nums font-semibold -ml-1 mr-2">
+                                <span onClick={() => setLikeDetails(true)} className="hover:cursor-pointer text-sm font-semibold tabular-nums">
                                     {compactNumber.format(post.like_count)}
                                 </span>
 
@@ -407,6 +410,12 @@ export function PostDetailSidebar({
                     />
                 </>
             )}
+
+            <PostsLikeDetails
+                open={likeDetails}
+                postId={post.posts_id}
+                onOpenChange={(b) => setLikeDetails(b)}
+            />
         </div>
     );
 }

@@ -139,15 +139,24 @@ type PreviousCommentQueries = Array<
     [QueryKey, CommentResponse[] | undefined]
 >;
 
-// Like komentar dengan optimistic update.
+
 export function useToggleCommentLike() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (commentId: string) =>
-            commentsApi.toggleLike(commentId),
+        mutationFn: ({
+            commentId,
+            liked,
+        }: {
+            commentId: string;
+            liked: boolean;
+        }) =>
+            
+            liked
+                ? commentsApi.createLikeComment(commentId)
+                : commentsApi.deleteLikeComment(commentId),
 
-        onMutate: async (commentId) => {
+        onMutate: async ({ commentId, liked }) => {
             await queryClient.cancelQueries({
                 queryKey: commentKeys.all,
             });
@@ -157,7 +166,7 @@ export function useToggleCommentLike() {
                     queryKey: commentKeys.all,
                 }) as PreviousCommentQueries;
 
-            // Komentar bisa ada di query utama maupun query replies.
+            // Optimistic update pada query komentar dan replies.
             for (const [key] of previous) {
                 queryClient.setQueryData<CommentResponse[]>(
                     key,
@@ -167,16 +176,15 @@ export function useToggleCommentLike() {
                                 return comment;
                             }
 
-                            const wasLiked =
-                                comment.is_liked ?? false;
+                            const wasLiked = comment.is_liked ?? false;
 
                             return {
                                 ...comment,
-                                is_liked: !wasLiked,
+                                is_liked: liked,
                                 like_count: Math.max(
                                     0,
                                     comment.like_count +
-                                        (wasLiked ? -1 : 1)
+                                        (liked ? 1 : -1)
                                 ),
                             };
                         })
@@ -186,15 +194,15 @@ export function useToggleCommentLike() {
             return { previous };
         },
 
-        onError: (_error, _commentId, context) => {
-            // Kembalikan cache jika request gagal.
+        onError: (_error, _variables, context) => {
+            // Rollback cache jika request gagal.
             context?.previous.forEach(([key, data]) => {
                 queryClient.setQueryData(key, data);
             });
         },
 
         onSettled: async () => {
-            // Sinkronkan cache dengan data dari backend.
+            // Sinkronkan cache dengan backend.
             await queryClient.invalidateQueries({
                 queryKey: commentKeys.all,
             });

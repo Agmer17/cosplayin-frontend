@@ -1,3 +1,4 @@
+import { FollowStatus } from "./follower";
 import { UserStatus, UserRole } from "./user";
 
 export type ProfilesVisibility = "PUBLIC" | "PRIVATE"
@@ -12,4 +13,17 @@ export type DetailProfileDTO = {
   username: string;
   user_status: UserStatus;
   user_role: UserRole;
+  follower_count : number
+  following_count : number
+  follow_status : FollowStatus
+};
+
+export type SimpleProfileDTO = {
+  id: string;
+  display_name: string;
+  avatar_url: string;
+  visibility: ProfilesVisibility;
+  username: string;
+  user_role: UserRole;
+  follow_status : FollowStatus
 };

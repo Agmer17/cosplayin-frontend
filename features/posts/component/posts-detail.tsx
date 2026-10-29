@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import type { PostsResponse } from "@/lib/type/posts";
 import { PostDetailMedia } from "./post-detail-media";
 import { PostDetailSidebar } from "./posts-detail-sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/lib/responsive_util"
 import { useRouter } from "next/navigation";
 import { DetailProfileDTO } from "@/lib/type/profile";
 
@@ -20,6 +20,7 @@ type PostDetailProps = {
 export function PostDetail({ post, onDelete, profile }: PostDetailProps) {
     const isMobile = useIsMobile();
     const router = useRouter();
+
 
     return (
         <main className="min-h-screen bg-background">
@@ -70,6 +71,8 @@ export function PostDetail({ post, onDelete, profile }: PostDetailProps) {
                     </div>
                 </Card>
             </div>
+
+
         </main>
     );
 }

@@ -1,12 +1,20 @@
 "use client"
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/lib/store/auth-store";
 import { Bell, Moon, Send, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 
+
+
+
 export function MobileNavbar() {
     const { theme, setTheme } = useTheme()
     const router = useRouter()
+
+    const current = useAuthStore(d => d.user)
+
+
     return (
         <nav className="fixed inset-x-0 top-0 z-50 h-14 border-b bg-background">
             <div className="h-full items-center px-4 flex justify-between">
@@ -23,7 +31,7 @@ export function MobileNavbar() {
                     <span className="sr-only">Toggle theme</span>
                 </Button>
 
-                <div className="flex gap-4">
+                {current && (<div className="flex gap-4">
                     <Button
                         variant="outline"
                         size="icon"
@@ -40,7 +48,7 @@ export function MobileNavbar() {
                     >
                         <Send className="h-5! w-5!" />
                     </Button>
-                </div>
+                </div>)}
             </div>
         </nav>
     )

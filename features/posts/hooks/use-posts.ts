@@ -54,10 +54,17 @@ export function usePostsLike(postId: string, liked: boolean) {
         liked,
         loading: mutation.isPending,
         toggleLike: () => mutation.mutate(!liked),
-    };
+    }; 
 }
 
 
+export function usePostsLikeDetails(postId: string) {
+    return useQuery({
+        queryKey: ["posts", postId, "likes"] as const,
+        queryFn: () => postsApi.client.getPostLikeDetails(postId),
+        enabled: !!postId,
+    });
+}
 
 export function usePostsBookmark(postId: string, bookmarked: boolean) {
     const queryClient = useQueryClient();
@@ -124,8 +131,6 @@ export function usePostById(postId: string) {
 
 
 export function usePostDelete(username : string | undefined) {
-
-
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (postId: string) =>

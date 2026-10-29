@@ -132,13 +132,14 @@ export function ProfileHeader({
 
                 {/* Stats */}
                 <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 pb-4 text-sm">
+
                     <ProfileStat
-                        value={0}
+                        value={profile.following_count}
                         label="Following"
                     />
 
                     <ProfileStat
-                        value={0}
+                        value={profile.follower_count}
                         label="Followers"
                     />
                 </div>
@@ -155,7 +156,7 @@ function ProfileStat({
     label: string;
 }) {
     return (
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1.5 hover:cursor-pointer">
             <strong className="font-semibold text-foreground">
                 {formatCount(value)}
             </strong>

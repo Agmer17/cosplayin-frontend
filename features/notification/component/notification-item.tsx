@@ -1,20 +1,34 @@
+
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link"
+import { Play } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { NotificationResponse } from "@/lib/type/notification"
+import type { NotificationResponse } from "@/lib/type/notification"
 import {
     notificationAction,
     notificationHref,
     timeAgo,
 } from "@/features/notification/util/notification-util"
 
-export function NotificationItem({ data }: { data: NotificationResponse }) {
-    const isUnread = data.read_at === null
+type NotificationItemProps = {
+    data: NotificationResponse
+    read?: boolean
+    className?: string
+}
+
+export function NotificationItem({
+    data,
+    read = false,
+    className,
+}: NotificationItemProps) {
+    const isUnread = data.read_at === null || read
     const shownActors = data.actors.slice(0, 3)
     const first = data.actors[0]
     const others = Math.max(data.actor_count - 1, 0)
+
+    const isVideo = data.post_preview?.fileType === "VIDEO"
 
     const showCommentPreview =
         data.notification_type !== "POST_LIKE" &&
@@ -25,16 +39,22 @@ export function NotificationItem({ data }: { data: NotificationResponse }) {
         <Link
             href={notificationHref(data)}
             className={cn(
-                "flex items-start gap-3 px-4 py-3 transition-colors outline-none",
-                "hover:bg-accent focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
-                isUnread && "bg-accent/50"
+                "relative flex items-start gap-3 rounded-2xl px-4 py-3 text-foreground outline-none transition-colors",
+                "hover:bg-primary/70 focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+                className,
             )}
         >
             {/* Avatar bertumpuk */}
             <div className="flex shrink-0 -space-x-3 pt-0.5">
                 {shownActors.map((actor) => (
-                    <Avatar key={actor.user_id} className="size-10 ring-2 ring-background">
-                        <AvatarImage src={actor.profile_picture} alt={actor.username} />
+                    <Avatar
+                        key={actor.user_id}
+                        className="size-10 ring-2 ring-background"
+                    >
+                        <AvatarImage
+                            src={actor.profile_picture}
+                            alt={actor.username}
+                        />
                         <AvatarFallback className="uppercase">
                             {actor.username.charAt(0)}
                         </AvatarFallback>
@@ -42,47 +62,61 @@ export function NotificationItem({ data }: { data: NotificationResponse }) {
                 ))}
             </div>
 
-            {/* Teks */}
+            {/* Teks notifikasi */}
             <div className="min-w-0 flex-1">
                 <p className="text-sm text-foreground">
-                    <span className="font-semibold">{first?.username ?? "Seseorang"}</span>
+                    <span className="font-semibold">
+                        {first?.username ?? "Seseorang"}
+                    </span>
+
                     {others > 0 && (
                         <>
-                            {" "}dan <span className="font-semibold">{others} lainnya</span>
+                            {" "}dan{" "}
+                            <span className="font-semibold">
+                                {others} lainnya
+                            </span>
                         </>
                     )}{" "}
                     {notificationAction[data.notification_type]}
                 </p>
 
                 {showCommentPreview && (
-                    <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
-                        “{data.comment_preview.comment}”
+                    <p className="mt-0.5 line-clamp-2 text-sm">
+                        “{data.comment_preview?.comment}”
                     </p>
                 )}
 
-                <p className="mt-1 text-xs text-muted-foreground">
-                    {timeAgo(data.last_activity_at)}
+                <p className="mt-1 text-xs">
+                    {timeAgo(data.created_at)}
                 </p>
             </div>
 
-            {/* Thumbnail post + indikator belum dibaca */}
+            {/* Thumbnail postingan dan indikator belum dibaca */}
             <div className="flex shrink-0 items-center gap-2">
                 {data.post_preview?.thumbnail && (
                     <div className="relative size-11 overflow-hidden rounded-md bg-muted">
-                        <img
-                            src={data.post_preview.thumbnail}
-                            alt="Thumbnail postingan"
-                            sizes="44px"
-                            className="object-cover"
-                        />
+                        {isVideo ? (
+                            <>
+                                <video
+                                    src={data.post_preview.thumbnail}
+                                    muted
+                                    playsInline
+                                    preload="metadata"
+                                    className="absolute inset-0 size-full object-cover"
+                                />
+
+                                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <Play className="size-5 fill-white text-white drop-shadow" />
+                                </div>
+                            </>
+                        ) : (
+                            <img
+                                src={data.post_preview.thumbnail}
+                                alt="Thumbnail postingan"
+                                className="size-full object-cover"
+                            />
+                        )}
                     </div>
-                )}
-                {isUnread && (
-                    <span
-                        className="size-2.5 rounded-full bg-primary"
-                        role="status"
-                        aria-label="Belum dibaca"
-                    />
                 )}
             </div>
         </Link>

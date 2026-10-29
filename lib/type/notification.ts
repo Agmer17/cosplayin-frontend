@@ -9,6 +9,7 @@ export type NotificationType =
 export interface PostsPreviewNotificationDTO {
   postId: string; 
   thumbnail: string;
+  fileType : string;
 }
 
 export interface CommentPreviewDTO {
