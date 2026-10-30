@@ -17,5 +17,5 @@ export type PlaceGeometryDTO = {
 export type PlacePropertiesDTO = {
   id: string;
   name: string;
-  category: string | null;
+  category: string;
 };
