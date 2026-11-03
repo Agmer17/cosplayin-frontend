@@ -18,7 +18,7 @@ function showNotificationToast(notification: NotificationResponse) {
             <NotificationItem data={notification} read={false} className="bg-background border border-primary" />
         ),
         {
-            duration: 5000,
+            duration: 1500,
         },
     )
 }

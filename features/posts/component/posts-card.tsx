@@ -21,16 +21,14 @@ import type { PostsResponse } from "@/lib/type/posts"
 // TODO: sesuaikan path import di bawah dengan struktur project kamu
 import { PostDetailMedia } from "./post-detail-media"
 import { postsApi } from "@/features/posts/api/posts.client"
-import { usePostsBookmark, usePostsLike } from "../hooks/use-posts"
+import { usePostDelete, usePostsBookmark, usePostsLike } from "../hooks/use-posts"
 import { PostOptionsDialog } from "./post-option-dialog"
 import { toast } from "sonner"
 import { CommentsPanel } from "./comments-pannel"
 import { compactNumber, timeAgo } from "@/lib/number-formatter-utils"
 import { PostsLikeDetails } from "./posts-like-details"
 
-/* -------------------------------------------------------------------------- */
-/* Helpers                                                                    */
-/* -------------------------------------------------------------------------- */
+
 
 function UserAvatar({
     user,
@@ -83,6 +81,8 @@ function PostCardBase({
 
     const { liked, toggleLike } = usePostsLike(postId, current.liked)
 
+    const { mutate: deletePost } = usePostDelete(post.author.username)
+
     const { bookmarked, toggleBookmark } = usePostsBookmark(
         postId,
         current.bookmarked,
@@ -95,6 +95,13 @@ function PostCardBase({
 
         toggleLike()
     }
+
+
+    const handleDeletePosts = () => {
+        deletePost(post.posts_id)
+        toast.success("berhasil menghapus postingan")
+    }
+
     const handleToggleBookmark = () => {
         if (!currentUser) {
             toast.error(
@@ -295,6 +302,7 @@ function PostCardBase({
                 postId={postId}
                 onReport={onReport}
                 isAuthor={currentUser?.id == current.author.id}
+                onDelete={handleDeletePosts}
             />
 
             {commentsEnabled && (

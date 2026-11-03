@@ -18,6 +18,8 @@ export default function Layout({ children }: HomeLayoutProps) {
     const profile = useAuthStore((state) => state.user)
     const pathname = usePathname()
 
+
+    const showNavbar = !(pathname.startsWith("/posts") || pathname.startsWith("/settings") || pathname.startsWith("/cosplay-map"))
     return (
         <div className="flex min-h-screen w-full">
             <SidebarProvider>
@@ -25,7 +27,7 @@ export default function Layout({ children }: HomeLayoutProps) {
                     <DesktopSidebar profile={profile} activePage={path} />
                 )}
 
-                {isMobile && !pathname.startsWith("/posts") && (
+                {isMobile && showNavbar && (
                     <MobileNavbar />
                 )}
 

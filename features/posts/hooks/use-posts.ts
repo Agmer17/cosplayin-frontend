@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { postsApi } from "../api/posts.client"
 import type { PostsResponse } from "@/lib/type/posts"
 import { useQuery } from "@tanstack/react-query"
+import { feedQueryKey } from "@/features/home/hooks/keys"
 
 
 export function usePostsLike(postId: string, liked: boolean) {
@@ -130,20 +131,28 @@ export function usePostById(postId: string) {
 }
 
 
-export function usePostDelete(username : string | undefined) {
+export function usePostDelete(username: string | undefined) {
     const queryClient = useQueryClient()
+
     return useMutation({
         mutationFn: (postId: string) =>
             postsApi.client.deletePosts(postId),
 
         onSuccess: (_, postId) => {
-            queryClient.removeQueries({
-                queryKey: ["posts", postId],
+            queryClient.setQueryData<PostsResponse[]>(
+                feedQueryKey.feed,
+                (oldData) => {
+                    if (!oldData) return oldData
+
+                    return oldData.filter(
+                        (post) => post.posts_id !== postId
+                    )
+                }
+            )
+
+            queryClient.invalidateQueries({
+                queryKey: ["profiles", "posts", username],
             })
-
-             queryClient.invalidateQueries({ queryKey: ["profiles", "posts", username] })
-
-
         },
     })
 }
