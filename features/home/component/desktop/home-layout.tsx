@@ -19,7 +19,7 @@ export default function Layout({ children }: HomeLayoutProps) {
     const pathname = usePathname()
 
 
-    const showNavbar = !(pathname.startsWith("/posts") || pathname.startsWith("/settings") || pathname.startsWith("/cosplay-map"))
+    const showNavbar = !(pathname.startsWith("/posts") || pathname.startsWith("/settings") || pathname.startsWith("/cosplay-event"))
     return (
         <div className="flex min-h-screen w-full">
             <SidebarProvider>
@@ -31,7 +31,13 @@ export default function Layout({ children }: HomeLayoutProps) {
                     <MobileNavbar />
                 )}
 
-                <div className={isMobile ? "w-full pb-14 pt-14" : "w-full"}>
+                <div
+                    className={
+                        isMobile
+                            ? `w-full pb-14 ${showNavbar ? "pt-14" : ""}`
+                            : "w-full"
+                    }
+                >
                     {children}
                 </div>
 

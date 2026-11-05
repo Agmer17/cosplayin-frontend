@@ -1,13 +1,16 @@
 "use client"
 
 import { useParams } from "next/navigation"
+
 import { Button } from "@/components/ui/button"
 import { ProfileView } from "@/features/profiles/component/ProfileView"
+
 import {
     useOtherProfile,
     useUserPosts,
     useOtherUserLikes,
 } from "@/features/profiles/hooks/use-profile-query"
+
 import { UserCheck, UserPlus } from "lucide-react"
 import { useToggleFollow } from "@/features/follow/hooks/use-follow"
 
@@ -21,18 +24,25 @@ export default function UserProfilePage() {
 
     const toggleFollow = useToggleFollow(username)
 
-    const isFollowing =
-        profileQuery.data?.follow_status === "FOLLOWING"
+    const profile = profileQuery.data
 
-    const isPending =
-        profileQuery.data?.follow_status === "PENDING"
+    const isFollowing =
+        profile?.follow_status === "FOLLOWING"
+
+    const isRequested =
+        profile?.follow_status === "REQUESTED"
+
+    const postsAccessible =
+        !profile ||
+        profile.visibility !== "PRIVATE" ||
+        isFollowing
 
     const handleToggleFollow = () => {
-        if (!profileQuery.data?.id) return
+        if (!profile?.id) return
 
         toggleFollow.mutate({
-            userId: profileQuery.data.id,
-            followed: !isFollowing && !isPending,
+            userId: profile.id,
+            followed: !isFollowing && !isRequested,
         })
     }
 
@@ -41,20 +51,24 @@ export default function UserProfilePage() {
             profileQuery={profileQuery}
             postsQuery={postsQuery}
             likedPostsQuery={likedPostsQuery}
+            postsAccessible={postsAccessible}
             actions={
                 <Button
                     size="sm"
                     variant={isFollowing ? "outline" : "default"}
                     className="gap-2 rounded-full px-4 font-semibold transition-colors"
                     onClick={handleToggleFollow}
-                    disabled={toggleFollow.isPending}
+                    disabled={
+                        toggleFollow.isPending ||
+                        profileQuery.isPending
+                    }
                 >
                     {isFollowing ? (
                         <>
                             <UserCheck className="size-4" />
                             Mengikuti
                         </>
-                    ) : isPending ? (
+                    ) : isRequested ? (
                         "Menunggu"
                     ) : (
                         <>

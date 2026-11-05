@@ -1,3 +1,7 @@
+
+"use client"
+
+import { useState } from "react"
 import type { ReactNode } from "react"
 
 import { Lock } from "lucide-react"
@@ -11,13 +15,18 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 
+
+
 import type { DetailProfileDTO } from "@/lib/type/profile"
 import { UserRole, UserStatus } from "@/lib/type/user"
+import { FollowListDialog } from "@/features/follow/component/follow-list"
+
+type FollowListType = "followers" | "following"
 
 type ProfileHeaderProps = {
-    profile: DetailProfileDTO;
-    actions?: ReactNode;
-};
+    profile: DetailProfileDTO
+    actions?: ReactNode
+}
 
 const ROLE_LABEL: Partial<Record<UserRole, string>> = {
     [UserRole.ADMIN]: "Admin",
@@ -45,6 +54,15 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
     const roleLabel = ROLE_LABEL[profile.user_role]
     const restrictedLabel = RESTRICTED_STATUS_LABEL[profile.user_status]
+
+    const [followListOpen, setFollowListOpen] = useState(false)
+    const [followListType, setFollowListType] =
+        useState<FollowListType>("followers")
+
+    const handleOpenFollowList = (type: FollowListType) => {
+        setFollowListType(type)
+        setFollowListOpen(true)
+    }
 
     return (
         <header className="w-full">
@@ -132,18 +150,36 @@ export function ProfileHeader({
 
                 {/* Stats */}
                 <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 pb-4 text-sm">
+                    <button
+                        type="button"
+                        onClick={() => handleOpenFollowList("following")}
+                        className="transition-opacity hover:opacity-70"
+                    >
+                        <ProfileStat
+                            value={profile.following_count}
+                            label="Following"
+                        />
+                    </button>
 
-                    <ProfileStat
-                        value={profile.following_count}
-                        label="Following"
-                    />
-
-                    <ProfileStat
-                        value={profile.follower_count}
-                        label="Followers"
-                    />
+                    <button
+                        type="button"
+                        onClick={() => handleOpenFollowList("followers")}
+                        className="transition-opacity hover:opacity-70"
+                    >
+                        <ProfileStat
+                            value={profile.follower_count}
+                            label="Followers"
+                        />
+                    </button>
                 </div>
             </div>
+
+            <FollowListDialog
+                userId={profile.id}
+                open={followListOpen}
+                onOpenChange={setFollowListOpen}
+                type={followListType}
+            />
         </header>
     )
 }
@@ -152,11 +188,11 @@ function ProfileStat({
     value,
     label,
 }: {
-    value: number | null | undefined;
-    label: string;
+    value: number | null | undefined
+    label: string
 }) {
     return (
-        <span className="flex items-center gap-1.5 hover:cursor-pointer">
+        <span className="flex items-center gap-1.5">
             <strong className="font-semibold text-foreground">
                 {formatCount(value)}
             </strong>
@@ -203,7 +239,6 @@ export function ProfileHeaderSkeleton() {
                 {/* Stats */}
                 <div className="mt-4 flex gap-5 pb-4">
                     <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-24" />
                     <Skeleton className="h-4 w-24" />
                 </div>
             </div>

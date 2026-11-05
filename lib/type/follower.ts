@@ -1,6 +1,6 @@
 import { SimpleProfileDTO } from "./profile"
 
-export type FollowStatus = "NONE" | "FOLLOWING" | "PENDING";
+export type FollowStatus = "NONE" | "FOLLOWING" | "REQUESTED";
 
 
 export type FollowerResponse =  {

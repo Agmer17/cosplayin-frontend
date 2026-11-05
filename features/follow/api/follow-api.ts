@@ -8,4 +8,20 @@ export const FollowClientApi = {
     
     unFollowUsers :(id : string) =>
         clientApi.delete(`/users/${id}/follow`),
+
+    getFollowers : (id : string ) =>
+        clientApi.get<FollowerResponse[]>(`/users/${id}/follow`),
+
+    getFollowing : (id : string) => 
+        clientApi.get<FollowerResponse[]>(`/users/${id}/following`),
+
+    getFollowRequest : () => 
+        clientApi.get<FollowerResponse[]>(`/profiles/me/following-requests`),
+
+    declineFollowRequest: (id: string) =>
+        clientApi.delete(`/users/${id}/follow-requests`),
+
+    acceptFollowRequest: (id: string) =>
+        clientApi.post<string>(`/users/${id}/follow-requests`),
+
 }

@@ -3,7 +3,7 @@
 
 import { useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { CalendarSearch, Search, UsersRound, X } from "lucide-react"
+import { HomeIcon, Search, X } from "lucide-react"
 
 import {
     InputGroup,
@@ -11,18 +11,17 @@ import {
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group"
-import { Button } from "@/components/ui/button"
+
 import {
     PLACE_PREFIX,
     SEARCH_PREFIX,
     cosplayEventRoutes,
     safeDecode,
 } from "@/features/cosplay-event/util/page-routes-util"
+import { Button } from "@/components/ui/button"
+import { useIsMobile } from "@/lib/responsive_util"
 
-const CATEGORY_SHORTCUTS = [
-    { label: "Event", query: "event", icon: CalendarSearch },
-    { label: "Kumpul", query: "Kumpul", icon: UsersRound },
-] as const
+
 
 function getQueryFromUrl(
     pathname: string,
@@ -44,6 +43,7 @@ export default function MapSearchBar() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const inputRef = useRef<HTMLInputElement>(null)
+    const isMobile = useIsMobile()
 
     const urlKey = `${pathname}?${searchParams.toString()}`
 
@@ -69,24 +69,30 @@ export default function MapSearchBar() {
         )
     }
 
-    function handleCategoryClick(query: string) {
-        setValue(query)
-        inputRef.current?.focus()
-    }
-
     function handleClear() {
         setValue("")
         inputRef.current?.focus()
     }
 
-    const activeKeyword = value.trim().toLowerCase()
 
     return (
         <div className="
             absolute left-4 right-4 top-4 z-30
             flex flex-col md:flex-row gap-2
-            md:right-auto md:w-[60%]
+            md:right-auto md:w-[30%]
         ">
+
+            {!isMobile && (
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-12 shrink-0 rounded-full bg-background shadow-lg"
+                    onClick={() => router.push("/")}
+                    aria-label="Kembali ke halaman utama"
+                >
+                    <HomeIcon className="size-5" />
+                </Button>
+            )}
             <form
                 role="search"
                 className="flex-1"
@@ -156,43 +162,6 @@ export default function MapSearchBar() {
                     )}
                 </InputGroup>
             </form>
-
-            <div
-                className="
-                    flex w-full items-center gap-2
-                    overflow-x-auto py-0.5
-                    scrollbar-none
-                    [&::-webkit-scrollbar]:hidden flex-1
-                "
-                aria-label="Kategori pencarian"
-            >
-                {CATEGORY_SHORTCUTS.map(({ label, query, icon: Icon }) => {
-                    const isActive = activeKeyword === query.toLowerCase()
-
-                    return (
-                        <Button
-                            key={label}
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            aria-pressed={isActive}
-                            onClick={() => handleCategoryClick(query)}
-                            className={`
-                                h-8 shrink-0 gap-1.5 rounded-full
-                                px-3 text-xs font-medium shadow-sm
-                                transition-colors
-                                ${isActive
-                                    ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                                    : "border-border/80 bg-background text-foreground hover:bg-accent"
-                                }
-                            `}
-                        >
-                            <Icon className="size-3.5" strokeWidth={2} />
-                            {label}
-                        </Button>
-                    )
-                })}
-            </div>
         </div>
     )
 }

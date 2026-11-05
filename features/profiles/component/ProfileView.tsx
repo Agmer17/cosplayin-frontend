@@ -9,6 +9,8 @@ import type { PostsResponse } from "@/lib/type/posts"
 import { ProfileHeader, ProfileHeaderSkeleton } from "./profile-header"
 import { ProfileTabs } from "./profile-tabs"
 import { PostsGrid } from "../../posts/component/posts-grid"
+import { LockKeyhole } from "lucide-react"
+
 
 type ProfileTab = "posts" | "likes";
 
@@ -18,7 +20,9 @@ type ProfileViewProps = {
     likedPostsQuery: UseQueryResult<PostsResponse[]>;
     actions?: ReactNode;
     showLikesTab?: boolean;
+    postsAccessible?: boolean
 };
+
 
 export function ProfileView({
     profileQuery,
@@ -26,9 +30,29 @@ export function ProfileView({
     likedPostsQuery,
     actions,
     showLikesTab = true,
+    postsAccessible = true,
 }: ProfileViewProps) {
     const [activeTab, setActiveTab] =
         useState<ProfileTab>("posts")
+
+    const privateContent = (
+        <div className="flex flex-col items-center justify-center gap-3 px-4 py-20 text-center">
+            <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+                <LockKeyhole className="size-8 text-muted-foreground" />
+            </div>
+
+            <div className="space-y-1">
+                <h3 className="font-semibold">
+                    Akun Ini Privat
+                </h3>
+
+                <p className="max-w-sm text-sm text-muted-foreground">
+                    Postingan akun ini hanya bisa dilihat oleh
+                    pengikut yang telah disetujui.
+                </p>
+            </div>
+        </div>
+    )
 
     return (
         <main className="mx-auto w-full max-w-4xl">
@@ -67,23 +91,31 @@ export function ProfileView({
 
             {activeTab === "posts" && (
                 <div className="w-full">
-                    <PostsGrid
-                        posts={postsQuery.data}
-                        isPending={postsQuery.isPending}
-                        isError={postsQuery.isError}
-                        onRetry={() => postsQuery.refetch()}
-                    />
+                    {!postsAccessible ? (
+                        privateContent
+                    ) : (
+                        <PostsGrid
+                            posts={postsQuery.data}
+                            isPending={postsQuery.isPending}
+                            isError={postsQuery.isError}
+                            onRetry={() => postsQuery.refetch()}
+                        />
+                    )}
                 </div>
             )}
 
             {activeTab === "likes" && (
                 <div className="w-full">
-                    <PostsGrid
-                        posts={likedPostsQuery.data}
-                        isPending={likedPostsQuery.isPending}
-                        isError={likedPostsQuery.isError}
-                        onRetry={() => likedPostsQuery.refetch()}
-                    />
+                    {!postsAccessible ? (
+                        privateContent
+                    ) : (
+                        <PostsGrid
+                            posts={likedPostsQuery.data}
+                            isPending={likedPostsQuery.isPending}
+                            isError={likedPostsQuery.isError}
+                            onRetry={() => likedPostsQuery.refetch()}
+                        />
+                    )}
                 </div>
             )}
         </main>
