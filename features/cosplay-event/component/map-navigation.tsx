@@ -1,14 +1,13 @@
-
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { NavigationControl } from "@vis.gl/react-maplibre"
 import { LocateFixed, LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/lib/responsive_util"
-import { JABODETABEK_BOUNDS, searchPlaces } from "../util/place-search-util"
+import { searchPlaces } from "../util/place-search-util"
 
 const SEARCH_RADIUS_KM = 10
 const KM_PER_DEGREE = 111.32
@@ -43,8 +42,6 @@ export default function MapNavigation({
                 bounds.maxLat,
             ].join(",")
 
-            // Hindari request berulang untuk area yang sama.
-            // Pencarian dari tombol Near Me dapat memaksa request baru.
             if (!force && lastFetchedArea.current === areaKey) {
                 return
             }
@@ -64,11 +61,6 @@ export default function MapNavigation({
         [onEventsLoaded]
     )
 
-    // Load event awal untuk area Jabodetabek.
-    useEffect(() => {
-        void fetchEvents(JABODETABEK_BOUNDS)
-    }, [fetchEvents])
-
     const handleFindNearestEvents = () => {
         if (!navigator.geolocation) {
             toast.error("Browser tidak mendukung akses lokasi")
@@ -82,18 +74,12 @@ export default function MapNavigation({
                 try {
                     const { latitude, longitude } = position.coords
 
-                    // Konversi radius 10 km menjadi selisih koordinat.
-                    const latDelta =
-                        SEARCH_RADIUS_KM / KM_PER_DEGREE
+                    const latDelta = SEARCH_RADIUS_KM / KM_PER_DEGREE
 
                     const lonDelta =
                         SEARCH_RADIUS_KM /
-                        (
-                            KM_PER_DEGREE *
-                            Math.cos((latitude * Math.PI) / 180)
-                        )
+                        (KM_PER_DEGREE * Math.cos((latitude * Math.PI) / 180))
 
-                    // Bounding box dengan titik tengah lokasi pengguna.
                     const bounds: SearchBounds = {
                         minLon: longitude - lonDelta,
                         minLat: latitude - latDelta,
@@ -101,7 +87,6 @@ export default function MapNavigation({
                         maxLat: latitude + latDelta,
                     }
 
-                    // Cari event berdasarkan bounding box lokasi pengguna.
                     await fetchEvents(bounds, true)
                 } finally {
                     setIsSearching(false)
@@ -120,9 +105,7 @@ export default function MapNavigation({
                     errorMessages[error.code] ??
                     "Gagal mendapatkan lokasi pengguna",
                     {
-                        position: isMobile
-                            ? "bottom-right"
-                            : "top-right",
+                        position: isMobile ? "bottom-right" : "top-right",
                     }
                 )
 
@@ -138,7 +121,6 @@ export default function MapNavigation({
 
     return (
         <div>
-            {/* Zoom control tetap menggunakan NavigationControl. */}
             {!isMobile && (
                 <NavigationControl
                     position="bottom-right"
@@ -151,13 +133,11 @@ export default function MapNavigation({
                 />
             )}
 
-            {/* Floating button untuk mencari event di sekitar pengguna. */}
             <div
                 className="absolute z-10"
                 style={{
-                    right: 12,
-                    bottom: isMobile ? undefined : 112,
-                    top: isMobile ? 12 : undefined,
+                    right: 5,
+                    bottom: isMobile ? 80 : 150,
                 }}
             >
                 <Button
