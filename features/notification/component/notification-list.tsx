@@ -1,47 +1,95 @@
+
 "use client"
 
 import { useMemo, useState, useEffect } from "react"
-import { AlertCircle, Bell, Heart, MessageCircle, MessageSquareReply, ThumbsUp, UserPlus } from "lucide-react"
+import {
+    AlertCircle,
+    Bell,
+    Heart,
+    MessageCircle,
+    UserPlus,
+} from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs"
 import { useNotifications } from "@/features/notification/hooks/use-notification"
 import { NotificationItem } from "@/features/notification/component/notification-item"
 import { NotificationSkeleton } from "@/features/notification/component/notification-skeleton"
 import { notificationApi } from "../api/notification-api"
-import type { NotificationType, NotificationResponse } from "@/lib/type/notification"
+import type {
+    NotificationType,
+    NotificationResponse,
+} from "@/lib/type/notification"
+
+type NotificationTab = NotificationType | "ALL" | "INTERACTION"
+
+const INTERACTION_TYPES: NotificationType[] = [
+    "COMMENT_LIKE",
+    "POST_COMMENT",
+    "COMMENT_REPLY",
+]
 
 const NOTIFICATION_TABS: {
-    value: NotificationType | "ALL"
+    value: NotificationTab
     label: string
     icon: React.ReactNode
 }[] = [
-        { value: "ALL", label: "Semua", icon: <Bell className="size-4" /> },
-        { value: "POST_LIKE", label: "Like Post", icon: <Heart className="size-4" /> },
-        { value: "COMMENT_LIKE", label: "Like Komentar", icon: <ThumbsUp className="size-4" /> },
-        { value: "POST_COMMENT", label: "Komentar", icon: <MessageCircle className="size-4" /> },
-        { value: "COMMENT_REPLY", label: "Balasan", icon: <MessageSquareReply className="size-4" /> },
-        { value: "FOLLOW", label: "Follow", icon: <UserPlus className="size-4" /> },
+        {
+            value: "ALL",
+            label: "Semua",
+            icon: <Bell className="size-5" />,
+        },
+        {
+            value: "POST_LIKE",
+            label: "Like Post",
+            icon: <Heart className="size-5" />,
+        },
+        {
+            value: "INTERACTION",
+            label: "Interaksi",
+            icon: <MessageCircle className="size-5" />,
+        },
+        {
+            value: "FOLLOW",
+            label: "Follow",
+            icon: <UserPlus className="size-5" />,
+        },
     ]
 
 export function NotificationList() {
-    const [activeTab, setActiveTab] = useState<NotificationType | "ALL">("ALL")
+    const [activeTab, setActiveTab] = useState<NotificationTab>("ALL")
 
     useEffect(() => {
         const readAllNotif = async () => {
-            notificationApi.readAllNotification()
+            await notificationApi.readAllNotification()
         }
+
         readAllNotif()
     }, [])
 
-    const { data, isLoading, isError, refetch, isFetching } = useNotifications()
+    const { data, isLoading, isError, refetch, isFetching } =
+        useNotifications()
 
     const filteredNotifications = useMemo(() => {
         if (!data) return []
 
         if (activeTab === "ALL") return data
+
+        if (activeTab === "INTERACTION") {
+            return data.filter(
+                (notification: NotificationResponse) =>
+                    INTERACTION_TYPES.includes(
+                        notification.notification_type
+                    )
+            )
+        }
 
         return data.filter(
             (notification: NotificationResponse) =>
@@ -84,7 +132,7 @@ export function NotificationList() {
             <Tabs
                 value={activeTab}
                 onValueChange={(value) =>
-                    setActiveTab(value as NotificationType | "ALL")
+                    setActiveTab(value as NotificationTab)
                 }
                 className="w-full flex flex-col"
             >
@@ -122,12 +170,20 @@ export function NotificationList() {
                         </div>
                     ) : (
                         <div>
-                            {filteredNotifications.map((notification, index) => (
-                                <div key={notification.id}>
-                                    <NotificationItem data={notification} read={notification.read_at != null} className="bg-background hover:bg-primary/20" />
-                                    {index < filteredNotifications.length - 1 && <Separator />}
-                                </div>
-                            ))}
+                            {filteredNotifications.map(
+                                (notification, index) => (
+                                    <div key={notification.id}>
+                                        <NotificationItem
+                                            data={notification}
+                                            read={notification.read_at != null}
+                                            className="bg-background hover:bg-primary/20"
+                                        />
+                                        {index < filteredNotifications.length - 1 && (
+                                            <Separator />
+                                        )}
+                                    </div>
+                                )
+                            )}
                         </div>
                     )}
                 </TabsContent>
