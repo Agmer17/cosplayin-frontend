@@ -31,22 +31,26 @@ export function SettingsSidebar({ className }: { className?: string }) {
     const queryClient = useQueryClient()
 
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         try {
-            AuthClientApi.logout()
+            await AuthClientApi.logout()
         } catch (err) {
             if (err instanceof ApiError) {
                 toast.error(err.message)
+            } else {
+                toast.error("Ada yang salah dengan koneksi internet kamu!")
             }
-            toast.error("ada yang salah sama internet kamu! silahkan coba lagi nanti!")
+
             return
         }
 
-        clearUser()
-        queryClient.clear()
-        router.push("/")
-        toast.message("berhasil logout!")
+        await queryClient.cancelQueries()
 
+        queryClient.clear()
+        clearUser()
+
+        router.replace("/")
+        toast.success("Berhasil logout!")
     }
 
     return (

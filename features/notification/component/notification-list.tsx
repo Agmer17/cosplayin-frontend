@@ -25,7 +25,6 @@ import { NotificationSkeleton } from "@/features/notification/component/notifica
 import { notificationApi } from "../api/notification-api"
 import type {
     NotificationType,
-    NotificationResponse,
 } from "@/lib/type/notification"
 
 type NotificationTab = NotificationType | "ALL" | "INTERACTION"
@@ -83,16 +82,21 @@ export function NotificationList() {
         if (activeTab === "ALL") return data
 
         if (activeTab === "INTERACTION") {
-            return data.filter(
-                (notification: NotificationResponse) =>
-                    INTERACTION_TYPES.includes(
-                        notification.notification_type
-                    )
+            return data.filter((notification) =>
+                INTERACTION_TYPES.includes(notification.notification_type)
+            )
+        }
+
+        if (activeTab === "FOLLOW") {
+            return data.filter((notification) =>
+                ["FOLLOW", "FOLLOW_REQUEST"].includes(
+                    notification.notification_type
+                )
             )
         }
 
         return data.filter(
-            (notification: NotificationResponse) =>
+            (notification) =>
                 notification.notification_type === activeTab
         )
     }, [data, activeTab])

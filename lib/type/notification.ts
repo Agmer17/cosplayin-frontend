@@ -5,6 +5,7 @@ export type NotificationType =
   | 'POST_COMMENT' 
   | "COMMENT_REPLY"
   | "FOLLOW"
+  | "FOLLOW_REQUEST"
 
 export interface PostsPreviewNotificationDTO {
   postId: string; 

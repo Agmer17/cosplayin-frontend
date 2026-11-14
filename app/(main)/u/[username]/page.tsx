@@ -1,6 +1,7 @@
 "use client"
 
 import { useParams } from "next/navigation"
+import { Clock3, LoaderCircle, UserCheck, UserPlus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { ProfileView } from "@/features/profiles/component/ProfileView"
@@ -11,7 +12,6 @@ import {
     useOtherUserLikes,
 } from "@/features/profiles/hooks/use-profile-query"
 
-import { UserCheck, UserPlus } from "lucide-react"
 import { useToggleFollow } from "@/features/follow/hooks/use-follow"
 
 export default function UserProfilePage() {
@@ -26,11 +26,8 @@ export default function UserProfilePage() {
 
     const profile = profileQuery.data
 
-    const isFollowing =
-        profile?.follow_status === "FOLLOWING"
-
-    const isRequested =
-        profile?.follow_status === "REQUESTED"
+    const isFollowing = profile?.follow_status === "FOLLOWING"
+    const isRequested = profile?.follow_status === "REQUESTED"
 
     const postsAccessible =
         !profile ||
@@ -38,12 +35,48 @@ export default function UserProfilePage() {
         isFollowing
 
     const handleToggleFollow = () => {
-        if (!profile?.id) return
+        if (!profile?.id || toggleFollow.isPending) return
 
         toggleFollow.mutate({
             userId: profile.id,
             followed: !isFollowing && !isRequested,
         })
+    }
+
+    const renderFollowButton = () => {
+        const isLoading = toggleFollow.isPending || profileQuery.isPending
+
+        return (
+            <Button
+                size="sm"
+                variant={isFollowing || isRequested ? "outline" : "default"}
+                className="gap-2 rounded-full px-4 font-semibold transition-colors"
+                onClick={handleToggleFollow}
+                disabled={isLoading || !profile}
+            >
+                {toggleFollow.isPending ? (
+                    <>
+                        <LoaderCircle className="size-4 animate-spin" />
+                        Memproses
+                    </>
+                ) : isFollowing ? (
+                    <>
+                        <UserCheck className="size-4" />
+                        Mengikuti
+                    </>
+                ) : isRequested ? (
+                    <>
+                        <Clock3 className="size-4" />
+                        Diminta
+                    </>
+                ) : (
+                    <>
+                        <UserPlus className="size-4" />
+                        Ikuti
+                    </>
+                )}
+            </Button>
+        )
     }
 
     return (
@@ -52,32 +85,7 @@ export default function UserProfilePage() {
             postsQuery={postsQuery}
             likedPostsQuery={likedPostsQuery}
             postsAccessible={postsAccessible}
-            actions={
-                <Button
-                    size="sm"
-                    variant={isFollowing ? "outline" : "default"}
-                    className="gap-2 rounded-full px-4 font-semibold transition-colors"
-                    onClick={handleToggleFollow}
-                    disabled={
-                        toggleFollow.isPending ||
-                        profileQuery.isPending
-                    }
-                >
-                    {isFollowing ? (
-                        <>
-                            <UserCheck className="size-4" />
-                            Mengikuti
-                        </>
-                    ) : isRequested ? (
-                        "Menunggu"
-                    ) : (
-                        <>
-                            <UserPlus className="size-4" />
-                            Ikuti
-                        </>
-                    )}
-                </Button>
-            }
+            actions={renderFollowButton()}
         />
     )
 }
