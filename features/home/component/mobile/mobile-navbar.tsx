@@ -44,7 +44,7 @@ export function MobileNavbar() {
                         variant="outline"
                         size="icon"
                         className="rounded-full"
-                        onClick={() => router.push("/notification")}
+                        onClick={() => router.push("/message")}
                     >
                         <Send className="h-5! w-5!" />
                     </Button>

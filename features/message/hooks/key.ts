@@ -3,4 +3,6 @@ export const conversationQueryKey = {
 
     latestChat: () =>
         [...conversationQueryKey.all, "latest-chat"] as const,
+    privateChat: (userId: string) =>
+        [...conversationQueryKey.all, "private", userId] as const,
 }
