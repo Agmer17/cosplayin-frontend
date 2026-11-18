@@ -8,6 +8,8 @@ import type { ConversationResponseDTO } from "@/lib/type/conversation"
 
 import { useWsSubscription } from "@/lib/use-ws-subscription"
 import { conversationQueryKey } from "../hooks/key"
+import { useAuthStore } from "@/lib/store/auth-store"
+import { appendMessage } from "../message-util"
 
 type LatestMessage = ConversationResponseDTO["latest_message"][number]
 
@@ -33,55 +35,60 @@ export function ChatMessageListener() {
         try {
             const message: MessageResponseDTO = JSON.parse(stompMessage.body)
 
-            const queryKey = conversationQueryKey.latestChat()
-            const previous =
-                queryClient.getQueryData<ConversationResponseDTO[]>(queryKey)
+            // getState() supaya selalu dapat user terbaru, tidak kena closure basi
+            const myId = useAuthStore.getState().user?.id
 
-            // Conversation belum ada di cache atau belum masuk daftar.
-            if (!previous?.some(
-                (conversation) => conversation.id === message.conversation_id,
-            )) {
-                void queryClient.invalidateQueries({ queryKey })
+            const latestKey = conversationQueryKey.latestChat()
+            const conversation = queryClient
+                .getQueryData<ConversationResponseDTO[]>(latestKey)
+                ?.find((c) => c.id === message.conversation_id)
+
+            // Conversation belum ada di sidebar -> refetch, pesan ikut ter-load dari server.
+            if (!conversation) {
+                void queryClient.invalidateQueries({ queryKey: latestKey })
                 return
             }
 
+            // 1. Append ke cache page chat
+            if (conversation.conversation_type === "PRIVATE") {
+                const other = conversation.participants.find(
+                    (p) => p.user.id !== myId,
+                )
+
+                if (other) {
+                    queryClient.setQueryData<MessageResponseDTO[]>(
+                        conversationQueryKey.privateChat(other.user.id),
+                        (old) => appendMessage(old, message),
+                    )
+                }
+            } else {
+                queryClient.setQueryData<MessageResponseDTO[]>(
+                    conversationQueryKey.groupChat(conversation.id),
+                    (old) => appendMessage(old, message),
+                )
+            }
+
+            // 2. Update preview sidebar (sama seperti sebelumnya)
             const latestMessage = toLatestMessage(message)
 
-            queryClient.setQueryData<ConversationResponseDTO[]>(
-                queryKey,
-                (previous) => {
-                    if (!previous) return previous
+            queryClient.setQueryData<ConversationResponseDTO[]>(latestKey, (previous) =>
+                previous?.map((c) => {
+                    if (c.id !== message.conversation_id) return c
 
-                    return previous.map((conversation) => {
-                        if (conversation.id !== message.conversation_id) {
-                            return conversation
-                        }
+                    const latestMessages = [
+                        ...c.latest_message.filter((item) => item.id !== message.id),
+                        latestMessage,
+                    ].sort(
+                        (a, b) =>
+                            new Date(b.created_at).getTime() -
+                            new Date(a.created_at).getTime(),
+                    )
 
-                        // Hindari duplikasi dan urutkan pesan berdasarkan waktu.
-                        const latestMessages = [
-                            ...conversation.latest_message.filter(
-                                (item) => item.id !== message.id,
-                            ),
-                            latestMessage,
-                        ].sort(
-                            (a, b) =>
-                                new Date(b.created_at).getTime() -
-                                new Date(a.created_at).getTime(),
-                        )
-
-                        return {
-                            ...conversation,
-                            latest_message: latestMessages,
-                        }
-                    })
-                },
+                    return { ...c, latest_message: latestMessages }
+                }),
             )
         } catch (error) {
-            console.error(
-                "[ws] Gagal memproses pesan baru:",
-                stompMessage.body,
-                error,
-            )
+            console.error("[ws] Gagal memproses pesan baru:", stompMessage.body, error)
         }
     }
 

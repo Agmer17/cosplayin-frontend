@@ -1,5 +1,7 @@
 import { CreateMessageInput } from "@/lib/type/message"
 import { SupportedFileType } from "@/lib/type/posts"
+import type { MessageResponseDTO } from "@/lib/type/message"
+import { ConversationResponseDTO } from "@/lib/type/conversation"
 
 const timeFormatter = new Intl.DateTimeFormat("id-ID", {
     hour: "2-digit",
@@ -92,4 +94,46 @@ export function buildCreateMessageFormData({
     for (const file of media) formData.append("media", file)
 
     return formData
+}
+
+
+export function appendMessage(
+    old: MessageResponseDTO[] | undefined,
+    message: MessageResponseDTO,
+) {
+    if (!old) return old
+    if (old.some((m) => m.id === message.id)) return old
+
+    return [...old, message]
+}
+
+
+
+export function getSortTime(conversation: ConversationResponseDTO) {
+    const latest = conversation.latest_message?.[0]
+
+    return new Date(latest?.created_at ?? conversation.created_at).getTime()
+}
+
+
+export function generateConvKey(first: string, second: string): string {
+    const [smaller, larger] =
+        compareUuid(first, second) < 0 ? [first, second] : [second, first]
+
+    return `${smaller}:${larger}`
+}
+
+function compareUuid(a: string, b: string): number {
+    const hexA = a.replaceAll("-", "")
+    const hexB = b.replaceAll("-", "")
+
+    const msbA = BigInt.asIntN(64, BigInt("0x" + hexA.slice(0, 16)))
+    const msbB = BigInt.asIntN(64, BigInt("0x" + hexB.slice(0, 16)))
+    if (msbA !== msbB) return msbA < msbB ? -1 : 1
+
+    const lsbA = BigInt.asIntN(64, BigInt("0x" + hexA.slice(16)))
+    const lsbB = BigInt.asIntN(64, BigInt("0x" + hexB.slice(16)))
+    if (lsbA !== lsbB) return lsbA < lsbB ? -1 : 1
+
+    return 0
 }
