@@ -1,95 +1,170 @@
+
 import { create } from "zustand"
-import { Client, IMessage, StompSubscription } from "@stomp/stompjs"
+import { Client } from "@stomp/stompjs"
+import type { IMessage, StompSubscription } from "@stomp/stompjs"
 
-type WsStatus = "disconnected" | "connecting" | "connected" | "error";
-type MessageHandler = (msg: IMessage) => void;
+type WsStatus = "disconnected" | "connecting" | "connected" | "error"
 
-interface SubEntry {
-  destination: string;
-  callback: MessageHandler;
-  sub?: StompSubscription;
+type MessageHandler = (message: IMessage) => void
+
+interface SubscriptionEntry {
+    destination: string
+    callback: MessageHandler
+    subscription?: StompSubscription
 }
 
 interface WsState {
-  status: WsStatus;
-  connect: () => void;
-  disconnect: () => Promise<void>;
-  subscribe: (destination: string, callback: MessageHandler) => () => void;
-  publish: (destination: string, body: unknown) => void;
+    status: WsStatus
+    connect: () => void
+    disconnect: () => Promise<void>
+    subscribe: (
+        destination: string,
+        callback: MessageHandler,
+    ) => () => void
 }
 
 let client: Client | null = null
-const entries = new Set<SubEntry>()
 
-const WS_URL = process.env.NEXT_PUBLIC_BACKEND_API + "/ws"
+let subscriptionId = 0
+
+const subscriptions = new Map<number, SubscriptionEntry>()
+
+const WS_URL =
+    process.env.NEXT_PUBLIC_BACKEND_WS_URL ??
+    `${process.env.NEXT_PUBLIC_BACKEND_API?.replace(/^http/, "ws").replace(/\/$/, "")}/ws`
+
+function subscribeEntry(
+    stompClient: Client,
+    entry: SubscriptionEntry,
+) {
+    if (!stompClient.connected || entry.subscription) return
+
+    try {
+        entry.subscription = stompClient.subscribe(
+            entry.destination,
+            entry.callback,
+        )
+    } catch (error) {
+        console.error(
+            `[stomp] Gagal subscribe ke ${entry.destination}:`,
+            error,
+        )
+    }
+}
 
 export const useWsStore = create<WsState>((set) => ({
-  status: "disconnected",
+    status: "disconnected",
 
-  connect: () => {
-    if (client) return
+    connect: () => {
+        if (client) return
 
-    set({ status: "connecting" })
+        set({ status: "connecting" })
 
-    client = new Client({
-      brokerURL: WS_URL,
-      reconnectDelay: 5000,
-      heartbeatIncoming: 10000,
-      heartbeatOutgoing: 10000,
-      debug: (str) => {
-        console.log("[stomp]", str)
-      },
+        const stompClient = new Client({
+            brokerURL: WS_URL,
 
-      onConnect: () => {
-        set({ status: "connected" })
-        entries.forEach((e) => {
-          e.sub = client!.subscribe(e.destination, e.callback)
+            reconnectDelay: 5000,
+
+            heartbeatIncoming: 10000,
+            heartbeatOutgoing: 10000,
+
+            debug: (message) => {
+                console.log("[stomp]", message)
+            },
+
+            onConnect: () => {
+                if (client !== stompClient) return
+
+                console.log("[stomp] Connected")
+
+                set({ status: "connected" })
+
+                // Restore seluruh subscription setelah reconnect.
+                subscriptions.forEach((entry) => {
+                    entry.subscription = undefined
+                    subscribeEntry(stompClient, entry)
+                })
+            },
+
+            onWebSocketClose: () => {
+                if (client !== stompClient) return
+
+                console.log("[stomp] Disconnected")
+
+                subscriptions.forEach((entry) => {
+                    entry.subscription = undefined
+                })
+
+                set({ status: "disconnected" })
+            },
+
+            onWebSocketError: () => {
+                if (client !== stompClient) return
+
+                set({ status: "error" })
+            },
+
+            onStompError: (frame) => {
+                if (client !== stompClient) return
+
+                console.error(
+                    "[stomp] Error:",
+                    frame.headers["message"],
+                    frame.body,
+                )
+
+                set({ status: "error" })
+            },
         })
-      },
-      onWebSocketClose: () => set({ status: "disconnected" }),
-      onWebSocketError: () => set({ status: "error" }),
-      onStompError: (frame) => {
-        console.error("[stomp] error:", frame.headers["message"], frame.body)
-        set({ status: "error" })
-      },
-    })
 
-    client.activate()
-  },
+        client = stompClient
 
-  disconnect: async () => {
-    if (!client) return
-    const c = client
-    client = null
-    entries.forEach((e) => (e.sub = undefined))
-    await c.deactivate()
-    set({ status: "disconnected" })
-  },
+        stompClient.activate()
+    },
 
-  subscribe: (destination, callback) => {
-    const entry: SubEntry = { destination, callback }
-    entries.add(entry)
+    disconnect: async () => {
+        if (!client) return
 
-    if (client?.connected) {
-      entry.sub = client.subscribe(destination, callback)
-    }
+        const currentClient = client
 
-    // return fungsi unsubscribe
-    return () => {
-      try {
-        entry.sub?.unsubscribe()
-      } catch {
-        // koneksi sudah putus, abaikan
-      }
-      entries.delete(entry)
-    }
-  },
+        client = null
 
-  publish: (destination, body) => {
-    if (!client?.connected) {
-      console.warn("[stomp] belum connected, publish dibatalkan")
-      return
-    }
-    client.publish({ destination, body: JSON.stringify(body) })
-  },
+        subscriptions.forEach((entry) => {
+            entry.subscription = undefined
+        })
+
+        await currentClient.deactivate()
+
+        if (!client) {
+            set({ status: "disconnected" })
+        }
+    },
+
+    subscribe: (destination, callback) => {
+        const id = ++subscriptionId
+
+        const entry: SubscriptionEntry = {
+            destination,
+            callback,
+        }
+
+        subscriptions.set(id, entry)
+
+        if (client?.connected) {
+            subscribeEntry(client, entry)
+        }
+
+        return () => {
+            const currentEntry = subscriptions.get(id)
+
+            if (!currentEntry) return
+
+            try {
+                currentEntry.subscription?.unsubscribe()
+            } catch {
+            }
+
+            subscriptions.delete(id)
+        }
+    },
 }))

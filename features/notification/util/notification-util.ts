@@ -46,7 +46,7 @@ export function notificationHref(n: NotificationResponse): string {
     n.notification_type === "FOLLOW" ||
     n.notification_type === "FOLLOW_REQUEST"
   ) {
-    return actor ? `/profile/${actor.username}` : "#"
+    return actor ? `/u/${actor.username}` : "#"
   }
 
   return n.post_preview?.postId
