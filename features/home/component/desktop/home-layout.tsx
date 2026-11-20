@@ -23,9 +23,10 @@ export default function Layout({ children }: HomeLayoutProps) {
         || pathname.startsWith("/settings")
         || pathname.startsWith("/cosplay-event")
         || pathname.startsWith("/message")
+        || pathname.startsWith("/message/new")
 
     )
-    const showBottomBar = !/^\/message\/[^/]+$/.test(pathname)
+    const showBottomBar = !pathname.startsWith("/message/")
     return (
         <div className="flex min-h-screen w-full">
             <SidebarProvider>

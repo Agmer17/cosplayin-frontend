@@ -93,30 +93,29 @@ function SearchInput({
     )
 }
 
-function getParticipantUserId(
-    participant: ParticipantResponse,
-): string {
-    return participant.user.username
-}
-
 function findPrivateConversation(
     conversations: ConversationResponseDTO[],
     currentUserId: string,
     username: string,
 ) {
+
     return conversations.find((conversation) => {
+
         if (String(conversation.conversation_type) !== "PRIVATE") {
             return false
         }
 
-        const participantIds = conversation.participants.map(
-            getParticipantUserId,
-        )
+        const participantIds = conversation.participants.map(val => val.user.id)
 
-        return (
-            participantIds.includes(currentUserId) &&
-            participantIds.includes(username)
-        )
+        console.log("Participant IDs:", participantIds)
+
+        const isCurrentUserIncluded = participantIds.includes(currentUserId)
+        const isTargetIncluded = participantIds.includes(username)
+
+        const isMatch = isCurrentUserIncluded && isTargetIncluded
+
+
+        return isMatch
     })
 }
 
@@ -282,16 +281,18 @@ export function NewMessageDialog({
         onOpenChange(next)
     }
 
-    const handleMessage = (username: string) => {
+    const handleMessage = (username: string, targetId: string) => {
         if (!currentUserId) return
 
         const existingConversation = findPrivateConversation(
             conversations,
             currentUserId,
-            username,
+            targetId,
         )
 
         handleOpenChange(false)
+
+        console.log("existing are : " + existingConversation)
 
         if (existingConversation) {
             router.push(`/message/${existingConversation.conv_key}`)
@@ -373,7 +374,7 @@ export function NewMessageDialog({
                                     key={item.user.id}
                                     item={item}
                                     onMessage={() =>
-                                        handleMessage(item.user.username)
+                                        handleMessage(item.user.username, item.user.id)
                                     }
                                     onNavigate={() =>
                                         handleOpenChange(false)

@@ -323,5 +323,4 @@ function PostCardBase({
     )
 }
 
-// memo supaya kartu lama tidak re-render saat halaman baru di-append
 export const PostCard = memo(PostCardBase)

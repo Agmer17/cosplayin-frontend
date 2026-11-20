@@ -69,7 +69,7 @@ export default function ConversationPage() {
     if (!conversation || !profile) return null
 
     return (
-        <div className="flex h-full min-h-0 min-w-0 flex-1 overflow-hidden">
+        <div className="flex h-dvh max-h-dvh w-full min-h-0 min-w-0 flex-1 overflow-hidden">
             <ConversationPanel
                 conversation={conversation}
                 messages={
